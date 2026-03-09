@@ -1099,6 +1099,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <div class="fg"><label>Başlama Tarihi</label><input type="date" id="pe-baslama" oninput="peAutoSetBitis()"></div>
       <div class="fg"><label>Bitiş Tarihi</label><input type="date" id="pe-bitis"></div>
       <div class="fg"><label>Poliçe Numarası *</label><input type="text" id="pe-no" placeholder="POL-2025-001" oninput="peCheckPolNo(this)"></div>
+      <div class="fg"><label>Müşteri Poliçe No <small style="color:var(--muted);">(Şirketteki No)</small></label><input type="text" id="pe-mpolno" placeholder="Şirketteki poliçe numarası"></div>
       <div class="fg"><label>Şirket</label><input type="text" id="pe-sirket" placeholder="Sigorta şirketi"></div>
       <div class="fg"><label>Poliçe Türü</label>
         <select id="pe-poltur">
@@ -2211,7 +2212,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>Plaka</th><th>Tanzim</th><th>Brüt</th><th>Net</th><th>Acente Kom.</th></tr></thead>
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>Plaka</th><th>Tanzim</th><th>Brüt</th><th>Net</th><th>Acente Kom.</th><th>Belgeler</th></tr></thead>
         <tbody id="kasa-pol-tbody"></tbody>
         <tfoot><tr id="kasa-pol-foot" style="font-weight:700;background:color-mix(in srgb,var(--success) 8%,transparent);"></tr></tfoot>
       </table>
@@ -2226,7 +2227,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>Brüt</th><th>MK İade</th><th>Kazanç</th><th>MKöçe Kazanç</th></tr></thead>
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>Brüt</th><th>MK İade</th><th>Kazanç</th><th>MKöçe Kazanç</th><th>Belgeler</th></tr></thead>
         <tbody id="kasa-ipt-tbody"></tbody>
         <tfoot><tr id="kasa-ipt-foot" style="font-weight:700;background:color-mix(in srgb,var(--accent) 8%,transparent);"></tr></tfoot>
       </table>
@@ -2241,7 +2242,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>Kul.Gün</th><th>Ac.Kom.</th><th>Ac.İade</th><th>Ac.Bana Kalan</th></tr></thead>
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>Kul.Gün</th><th>Ac.Kom.</th><th>Ac.İade</th><th>Ac.Bana Kalan</th><th>Belgeler</th></tr></thead>
         <tbody id="kasa-acb-tbody"></tbody>
         <tfoot><tr id="kasa-acb-foot" style="font-weight:700;background:color-mix(in srgb,var(--info) 8%,transparent);"></tr></tfoot>
       </table>
@@ -2256,7 +2257,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>MKöçe Kazanç</th><th>Ac.Bana Kalan</th><th>Toplam Kazanç</th></tr></thead>
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>MKöçe Kazanç</th><th>Ac.Bana Kalan</th><th>Toplam Kazanç</th><th>Belgeler</th></tr></thead>
         <tbody id="kasa-gen-tbody"></tbody>
         <tfoot><tr id="kasa-gen-foot" style="font-weight:700;background:color-mix(in srgb,var(--primary) 8%,transparent);"></tr></tfoot>
       </table>
@@ -4356,8 +4357,11 @@ function saveAtTahsilat(){
     policeId:policeId,
     polNo:police?police.polNo:'',
     musteriId:police?police.musteriId:'',
+    sirket:police?police.sirket||'':'',
+    plaka:police?police.plaka||'':'',
     tarih:gv('at-tarih')||new Date().toISOString().substr(0,10),
-    tutar,aciklama:gv('at-aciklama')
+    tutar,aciklama:gv('at-aciklama'),
+    tip:'tahsilat'
   });
   saveDB();renderAcente();toast('Acente tahsilatı kaydedildi','success');
   ['at-acente','at-police','at-tarih','at-tutar','at-aciklama'].forEach(id=>sv(id,''));
@@ -4640,7 +4644,7 @@ function renderIptal(){
     if(!hasDocs) docBtns+='<span style="color:var(--muted);font-size:10px;">Belge yok</span>';
     docBtns+='</div>';
     return '<tr>'+
-      '<td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="\'+ ii.musteriId +\'">'+(m?m.ad:'-')+'</b></td>'+
+      '<td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(\"'+ ii.musteriId +'\")">'+(m?m.ad:'-')+'</b></td>'+
       '<td>'+(ii.polNo||'-')+'</td>'+
       '<td>'+(ii.sirket||'-')+'</td>'+
       '<td>'+fmtD(ii.iptaltarihi)+'</td>'+
@@ -4993,6 +4997,36 @@ function _kasaSearchFilter(p,isIptal){
   return true;
 }
 
+// Kasa belge butonları yardımcısı
+function _kasaDocBtns(items){
+  const valid = items.filter(Boolean);
+  if(!valid.length) return '<span style="color:var(--muted);font-size:10px;">-</span>';
+  let html = '<div style="display:flex;flex-direction:column;gap:4px;min-width:80px;">';
+  valid.forEach(function(item){
+    const btnPreview = document.createElement('button');
+    const btnDownload = document.createElement('button');
+    // return HTML string with data attrs, handled by event delegation
+    html += '<div style="margin-bottom:2px;">'
+      +'<div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:1px;">'+item.label+'</div>'
+      +'<div style="display:flex;gap:2px;">'
+      +(item.pid
+        ? '<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+item.pid+'" data-dtype="'+item.dtype+'" onclick="previewDocFromPolice(this.dataset.pid,this.dataset.dtype)">👁️</button>'
+          +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+item.pid+'" data-dtype="'+item.dtype+'" onclick="downloadDocFromPolice(this.dataset.pid,this.dataset.dtype)">⬇️</button>'
+        : '<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-iid="'+item.iid+'" data-dtype="'+item.dtype+'" onclick="_kasaIptalDocAction(this.dataset.iid,this.dataset.dtype,\'preview\')">👁️</button>'
+          +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-iid="'+item.iid+'" data-dtype="'+item.dtype+'" onclick="_kasaIptalDocAction(this.dataset.iid,this.dataset.dtype,\'download\')">⬇️</button>'
+      )
+      +'</div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+function _kasaIptalDocAction(iid, dtype, action){
+  const ii = DB.iptaller.find(x=>x.id===iid);
+  if(!ii||!ii.docs||!ii.docs[dtype]){toast('Belge bulunamadı','error');return;}
+  if(action==='preview') _openDocViewer(ii.docs[dtype]);
+  else _downloadDoc(ii.docs[dtype]);
+}
+
 function renderKasa(){
   _kasaYillarDoldur();
   const {t1,t2}=_kasaGetDateRange();
@@ -5006,6 +5040,12 @@ function renderKasa(){
   const polTbody=byId('kasa-pol-tbody');
   polTbody.innerHTML=polList.length?polList.map((p,i)=>{
     const m=getMusteri(p.musteriId);const a=getAcente(p.acenteId);
+    const pDocs=p.docs||{};
+    const pDocBtns=_kasaDocBtns([
+      pDocs.ruhsat?{label:'📋 Ruhsat',pid:p.id,dtype:'ruhsat'}:null,
+      pDocs.tc?{label:'🪪 Kimlik',pid:p.id,dtype:'tc'}:null,
+      pDocs.pdf?{label:'📑 Poliçe',pid:p.id,dtype:'pdf'}:null,
+    ]);
     return `<tr>
       <td>${i+1}</td><td><b>${m?m.ad:'-'}</b></td>
       <td>${p.polNo||'-'}</td><td>${p.sirket||'-'}</td>
@@ -5013,10 +5053,11 @@ function renderKasa(){
       <td class="num">₺${fmt(p.brut)}</td>
       <td class="num">₺${fmt(p.net)}</td>
       <td class="num" style="color:var(--success);font-weight:700;">₺${fmt(p.ackomisyon)}</td>
+      <td>${pDocBtns}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:12px;">Kayıt yok</td></tr>';
 
-  byId('kasa-pol-foot').innerHTML=`<td colspan="6" style="text-align:right;">TOPLAM (${polList.length}):</td><td class="num">₺${fmt(polTopB)}</td><td class="num">₺${fmt(polTopN)}</td><td class="num" style="color:var(--success);">₺${fmt(polTopK)}</td>`;
+  byId('kasa-pol-foot').innerHTML=`<td colspan="6" style="text-align:right;">TOPLAM (${polList.length}):</td><td class="num">₺${fmt(polTopB)}</td><td class="num">₺${fmt(polTopN)}</td><td class="num" style="color:var(--success);">₺${fmt(polTopK)}</td><td></td>`;
   byId('kasa-pol-toplam').textContent='Toplam Ac.Kom: ₺'+fmt(polTopK);
 
   // --- İPTAL MKöçe KAZANÇ ---
@@ -5029,6 +5070,11 @@ function renderKasa(){
   const iptTbody=byId('kasa-ipt-tbody');
   iptTbody.innerHTML=iptList.length?iptList.map((ii,i)=>{
     const m=getMusteri(ii.musteriId);
+    const iiDocs=ii.docs||{};
+    const iiDocBtns=_kasaDocBtns([
+      iiDocs.senet?{label:'📄 Senet',iid:ii.id,dtype:'senet'}:null,
+      iiDocs.pdf?{label:'📑 İptal PDF',iid:ii.id,dtype:'pdf'}:null,
+    ]);
     return `<tr>
       <td>${i+1}</td><td><b>${m?m.ad:'-'}</b></td>
       <td>${ii.polNo||'-'}</td><td>${ii.sirket||'-'}</td>
@@ -5037,10 +5083,11 @@ function renderKasa(){
       <td class="num" style="color:var(--warning);">₺${fmt(ii.mkIade)}</td>
       <td class="num" style="color:var(--accent);">₺${fmt(ii.kazanc)}</td>
       <td class="num" style="color:var(--accent);font-weight:800;">₺${fmt(ii.mkKazanc)}</td>
+      <td>${iiDocBtns}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:12px;">Kayıt yok</td></tr>';
 
-  byId('kasa-ipt-foot').innerHTML=`<td colspan="5" style="text-align:right;">TOPLAM (${iptList.length}):</td><td class="num">₺${fmt(iptTopBrut)}</td><td class="num" style="color:var(--warning);">₺${fmt(iptTopMKIade)}</td><td class="num" style="color:var(--accent);">₺${fmt(iptTopKazanc)}</td><td class="num" style="color:var(--accent);">₺${fmt(iptTopMK)}</td>`;
+  byId('kasa-ipt-foot').innerHTML=`<td colspan="5" style="text-align:right;">TOPLAM (${iptList.length}):</td><td class="num">₺${fmt(iptTopBrut)}</td><td class="num" style="color:var(--warning);">₺${fmt(iptTopMKIade)}</td><td class="num" style="color:var(--accent);">₺${fmt(iptTopKazanc)}</td><td class="num" style="color:var(--accent);">₺${fmt(iptTopMK)}</td><td></td>`;
   byId('kasa-ipt-toplam').textContent='Toplam MKöçe Kazanç: ₺'+fmt(iptTopMK);
 
   // --- İPTAL ACENTE BANA KALAN ---
@@ -5051,6 +5098,11 @@ function renderKasa(){
   const acbTbody=byId('kasa-acb-tbody');
   acbTbody.innerHTML=iptList.length?iptList.map((ii,i)=>{
     const m=getMusteri(ii.musteriId);
+    const acbDocs=ii.docs||{};
+    const acbDocBtns=_kasaDocBtns([
+      acbDocs.senet?{label:'📄 Senet',iid:ii.id,dtype:'senet'}:null,
+      acbDocs.pdf?{label:'📑 İptal PDF',iid:ii.id,dtype:'pdf'}:null,
+    ]);
     return `<tr>
       <td>${i+1}</td><td><b>${m?m.ad:'-'}</b></td>
       <td>${ii.polNo||'-'}</td><td>${ii.sirket||'-'}</td>
@@ -5059,10 +5111,11 @@ function renderKasa(){
       <td class="num">₺${fmt(ii.acKom)}</td>
       <td class="num" style="color:var(--danger);">₺${fmt(ii.acIade)}</td>
       <td class="num" style="color:var(--info);font-weight:800;">₺${fmt(ii.acBaKalan)}</td>
+      <td>${acbDocBtns}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:12px;">Kayıt yok</td></tr>';
 
-  byId('kasa-acb-foot').innerHTML=`<td colspan="6" style="text-align:right;">TOPLAM (${iptList.length}):</td><td class="num">₺${fmt(acbTopKom)}</td><td class="num" style="color:var(--danger);">₺${fmt(acbTopIade)}</td><td class="num" style="color:var(--info);">₺${fmt(acbTopBK)}</td>`;
+  byId('kasa-acb-foot').innerHTML=`<td colspan="6" style="text-align:right;">TOPLAM (${iptList.length}):</td><td class="num">₺${fmt(acbTopKom)}</td><td class="num" style="color:var(--danger);">₺${fmt(acbTopIade)}</td><td class="num" style="color:var(--info);">₺${fmt(acbTopBK)}</td><td></td>`;
   byId('kasa-acb-toplam').textContent='Toplam Ac.Bana Kalan: ₺'+fmt(acbTopBK);
 
   // --- GENEL TOPLAM (MKöçe Kazanç + AcBaKalan) ---
@@ -5071,6 +5124,11 @@ function renderKasa(){
   genTbody.innerHTML=iptList.length?iptList.map((ii,i)=>{
     const m=getMusteri(ii.musteriId);
     const top=(ii.mkKazanc||0)+(ii.acBaKalan||0);
+    const genDocs=ii.docs||{};
+    const genDocBtns=_kasaDocBtns([
+      genDocs.senet?{label:'📄 Senet',iid:ii.id,dtype:'senet'}:null,
+      genDocs.pdf?{label:'📑 İptal PDF',iid:ii.id,dtype:'pdf'}:null,
+    ]);
     return `<tr>
       <td>${i+1}</td><td><b>${m?m.ad:'-'}</b></td>
       <td>${ii.polNo||'-'}</td><td>${ii.sirket||'-'}</td>
@@ -5078,10 +5136,11 @@ function renderKasa(){
       <td class="num" style="color:var(--accent);">₺${fmt(ii.mkKazanc)}</td>
       <td class="num" style="color:var(--info);">₺${fmt(ii.acBaKalan)}</td>
       <td class="num" style="color:var(--primary);font-weight:800;">₺${fmt(top)}</td>
+      <td>${genDocBtns}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:12px;">Kayıt yok</td></tr>';
 
-  byId('kasa-gen-foot').innerHTML=`<td colspan="5" style="text-align:right;">TOPLAM:</td><td class="num" style="color:var(--accent);">₺${fmt(iptTopMK)}</td><td class="num" style="color:var(--info);">₺${fmt(acbTopBK)}</td><td class="num" style="color:var(--primary);">₺${fmt(genTop)}</td>`;
+  byId('kasa-gen-foot').innerHTML=`<td colspan="5" style="text-align:right;">TOPLAM:</td><td class="num" style="color:var(--accent);">₺${fmt(iptTopMK)}</td><td class="num" style="color:var(--info);">₺${fmt(acbTopBK)}</td><td class="num" style="color:var(--primary);">₺${fmt(genTop)}</td><td></td>`;
   byId('kasa-gen-toplam').textContent='Genel Toplam: ₺'+fmt(genTop);
 
   // --- ÖZET KARTLARI ---
