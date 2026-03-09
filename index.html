@@ -1610,7 +1610,9 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <div class="fg"><label>Başlama Tarihi</label><input type="text" id="ii-baslama" readonly></div>
       <div class="fg"><label>Bitiş Tarihi</label><input type="text" id="ii-bitis" readonly></div>
       <div class="fg"><label>Şirket</label><input type="text" id="ii-sirket" readonly></div>
-      <div class="fg"><label>Acente</label><input type="text" id="ii-acente" readonly></div>
+      <div class="fg"><label>Poliçe Acentesi</label><input type="text" id="ii-acente" readonly></div>
+      <div class="fg"><label>Acente Seç <small style="color:var(--info);">(İade acentesi — opsiyonel)</small></label><select id="ii-acente-sec"><option value="">-- Acente Seçin --</option></select></div>
+      <div class="fg" style="grid-column:1/-1;"><label>Açıklama</label><textarea id="ii-aciklama" rows="2" placeholder="İptal açıklaması..." style="width:100%;resize:vertical;"></textarea></div>
       <div class="fg"><label>Kullanılan Gün</label><input type="text" id="ii-kullanilan" readonly></div>
       <div class="fg"><label>Kalan Gün</label><input type="text" id="ii-kalan" readonly></div>
     </div>
@@ -2682,7 +2684,7 @@ function populateSelects(){
     el.value=cur;
   });
   // Acente selects
-  ['pe-acente','at-acente','nt-acente','pl-sac'].forEach(id=>{
+  ['pe-acente','at-acente','nt-acente','pl-sac','ii-acente-sec'].forEach(id=>{
     const el=byId(id);if(!el)return;
     const cur=el.value;
     el.innerHTML=id==='pl-sac'?'<option value="">Tüm Acenteler</option>':'<option value="">-- Acente Seçin --</option>';
@@ -4548,9 +4550,15 @@ function saveIptal(){
   const obj={id:uid(),musteriId:mid,policeId:pid,tanzim:p.tanzim,baslama:p.baslama,bitis:p.bitis,
     iptaltarihi:gv('ii-iptaltarihi'),polNo:p.polNo,sirket:p.sirket,acenteId:p.acenteId,
     sebep:gv('ii-sebep'),..._iptalCalc,mkIade,
-    noterIsmi:gv('ii-noter-ismi')||'',noterNo:gv('ii-noter-no')||'',
+    noterIsmi:gv('ii-noter-ismi')||'',noterNo:gv('ii-noter-no')||'',aciklama:gv('ii-aciklama')||'',
+    iadAcenteId:gv('ii-acente-sec')||'',
     docs:{senet:_iiDocsTemp.senet?{..._iiDocsTemp.senet}:null,pdf:_iiDocsTemp.pdf?{..._iiDocsTemp.pdf}:null}};
   DB.iptaller.push(obj);
+  // Düzenleme modundaysa eskiyi sil
+  if(window._editIptalId){
+    DB.iptaller=DB.iptaller.filter(x=>x.id!==window._editIptalId);
+    window._editIptalId=null;
+  }
   if(mkIade>0){
     DB.cariler.push({id:uid(),musteriId:mid,policeId:pid,
       tarih:obj.iptaltarihi||new Date().toISOString().substr(0,10),
@@ -4558,11 +4566,13 @@ function saveIptal(){
       borc:0,alacak:mkIade,
       aciklama:'MK \u0130ptal \u0130adesi (Alacak) \u2013 '+p.polNo});
   }
-  if(p.acenteId&&(_iptalCalc.acIade||0)>0){
-    DB.atList.push({id:uid(),acenteId:p.acenteId,
+  const iadAcenteId=gv('ii-acente-sec')||p.acenteId;
+  if(iadAcenteId&&(_iptalCalc.acIade||0)>0){
+    const iadA=getAcente(iadAcenteId);
+    DB.atList.push({id:uid(),acenteId:iadAcenteId,
       tarih:obj.iptaltarihi||new Date().toISOString().substr(0,10),
       tutar:_iptalCalc.acIade,
-      aciklama:'\u0130ptal acente komisyon iadesi \u2013 '+p.polNo,tip:'iade'});
+      aciklama:'\u0130ptal Acente \u0130ade Alaca\u011f\u0131 \u2013 '+p.polNo+(iadA?' ('+iadA.ad+')':''),tip:'iade'});
   }
   saveDB();renderIptal();toast('Poli\xe7e iptal edildi, cari ve iade kay\u0131tlar\u0131 olu\u015fturuldu','success');resetIptalForm();updateStats();
 }
@@ -4571,10 +4581,11 @@ function resetIptalForm(){
    'ii-brut','ii-net','ii-ackomisyon','ii-acoran','ii-gunluk','ii-acgunluk',
    'ii-kullanilan','ii-kalan','ii-gercekiade','ii-gercek-calisan',
    'ii-mkiade','ii-mk-calisan','ii-kazanc','ii-ackomiade','ii-ac-bakalan','ii-mkkazanc',
-   'ii-sirket','ii-acente','ii-noter-ismi','ii-noter-no'].forEach(id=>sv(id,''));
+   'ii-sirket','ii-acente','ii-acente-sec','ii-noter-ismi','ii-noter-no','ii-aciklama'].forEach(id=>sv(id,''));
   const oz=byId('ii-formul-ozet');if(oz)oz.textContent='Poli\xe7e se\xe7in, tarih ve MK \u0130ade tutar\u0131 girin\u2026';
   _iptalCalc={};
   clearIptalDocs();
+  window._editIptalId=null;
 }
 function renderIptal(){
   const tb=byId('tbody-iptal');
@@ -4622,9 +4633,12 @@ function renderIptal(){
       '<td style="color:var(--info);">\u20ba'+fmt(ii.acIade)+'</td>'+
       '<td style="color:var(--primary);">\u20ba'+fmt(ii.acBaKalan)+'</td>'+
       '<td style="color:var(--accent);font-weight:800;background:color-mix(in srgb,var(--accent) 8%,transparent);">\u20ba'+fmt(ii.mkKazanc)+'</td>'+
-      '<td style="min-width:100px;">'+noterInfo+'</td>'+
+      '<td style="min-width:100px;">'+noterInfo+(ii.aciklama?'<div style="font-size:10px;color:var(--muted);margin-top:3px;">'+ii.aciklama+'</div>':'')+'</td>'+
       '<td style="min-width:95px;">'+docBtns+'</td>'+
-      '<td style="white-space:nowrap;"><button class="btn btn-danger btn-xs" onclick=\'delIptal("'+ii.id+'")\'>\u{1F5D1}\uFE0F</button></td>'+
+      '<td style="white-space:nowrap;display:flex;gap:3px;">'+
+        '<button class="btn btn-primary btn-xs" onclick=\'editIptal("'+ii.id+'")\'>✏️</button>'+
+        '<button class="btn btn-danger btn-xs" onclick=\'delIptal("'+ii.id+'")\'>🗑️</button>'+
+      '</td>'+
       '</tr>';
   }).join('');
 }
@@ -4735,6 +4749,56 @@ function _downloadDoc(doc){
     document.body.removeChild(a);
     toast(doc.name+' indiriliyor','success');
   }catch(err){toast('İndirme hatası: '+err.message,'error');}
+}
+
+function editIptal(id){
+  const ii=DB.iptaller.find(x=>x.id===id);if(!ii)return;
+  // Müşteriyi seç ve poliçeleri yükle
+  sv('ii-musteri',ii.musteriId);loadIptalMusteri();
+  // Poliçeyi seç — kısa gecikme ile dropdown dolsun
+  setTimeout(()=>{
+    sv('ii-police',ii.policeId);loadIptalPolice();
+    setTimeout(()=>{
+      sv('ii-iptaltarihi',ii.iptaltarihi||'');
+      sv('ii-sebep',ii.sebep||'arac-satis');
+      sv('ii-mkiade',ii.mkIade||0);
+      sv('ii-noter-ismi',ii.noterIsmi||'');
+      sv('ii-noter-no',ii.noterNo||'');
+      sv('ii-aciklama',ii.aciklama||'');
+      if(ii.iadAcenteId) sv('ii-acente-sec',ii.iadAcenteId);
+      calcIptal();
+      // Belgeleri yükle
+      clearIptalDocs();
+      if(ii.docs){
+        ['senet','pdf'].forEach(t=>{
+          if(ii.docs[t]){
+            _iiDocsTemp[t]=ii.docs[t];
+            const zone=byId('ii-dzone-'+t);
+            const preview=byId('ii-dpreview-'+t);
+            if(zone){zone.classList.add('has-file');const txt=zone.querySelector('.doc-upload-text');if(txt)txt.textContent='✅ '+ii.docs[t].name;}
+            if(preview){
+              preview.style.display='block';
+              const isImg=ii.docs[t].mime&&ii.docs[t].mime.startsWith('image/');
+              preview.innerHTML='<div class="doc-preview-name">📎 '+ii.docs[t].name+'</div>'
+                +(isImg?'<img src="'+ii.docs[t].data+'" style="max-width:100%;max-height:80px;border-radius:4px;margin-top:4px;">'
+                  :'<div style="font-size:10px;color:var(--muted);margin-top:4px;">📑 PDF</div>')
+                +'<div id="ii-dpa-'+t+'"></div>';
+              (function(tt){
+                const dpa=byId('ii-dpa-'+tt);if(!dpa)return;
+                const b1=document.createElement('button');b1.className='btn btn-outline btn-xs';b1.textContent='👁️';b1.onclick=function(){previewIptalDoc(tt);};
+                const b2=document.createElement('button');b2.className='btn btn-danger btn-xs';b2.textContent='🗑️';b2.onclick=function(){removeIptalDoc(tt);};
+                dpa.appendChild(b1);dpa.appendChild(b2);
+              })(t);
+            }
+          }
+        });
+      }
+      // Düzenleme modunu işaretle
+      window._editIptalId=id;
+      byId('page-iptal-iade').querySelector('.card').scrollIntoView({behavior:'smooth'});
+      toast('Düzenleme modunda. Değiştirip kaydedin.','');
+    },100);
+  },50);
 }
 
 function delIptal(id){if(!confirm('Silinsin mi?'))return;DB.iptaller=DB.iptaller.filter(i=>i.id!==id);saveDB();renderIptal();updateStats();}
