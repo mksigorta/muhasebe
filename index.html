@@ -2693,7 +2693,7 @@ function renderMusteriler(){
   if(!list.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
   const tipBadge={bireysel:'<span style="background:#dbeafe;color:#1d4ed8;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">👤 Bireysel</span>',kurumsal:'<span style="background:#ede9fe;color:#7c3aed;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">🏢 Kurumsal</span>',kobi:'<span style="background:#d1fae5;color:#065f46;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">🏪 KOBİ</span>'};
   tb.innerHTML=list.map(m=>`<tr>
-    <td><b style="cursor:pointer;color:var(--info);" onclick='openMusteriDetay("${m.id}")'>${m.ad}</b>${m.yetkili&&m.yetkili!==m.ad?`<div style="font-size:10px;color:var(--muted);">Yetkili: ${m.yetkili}</div>`:''}</td>
+    <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m.ad}</b>${m.yetkili&&m.yetkili!==m.ad?`<div style="font-size:10px;color:var(--muted);">Yetkili: ${m.yetkili}</div>`:''}</td>
     <td>${tipBadge[m.tip||'bireysel']||tipBadge.bireysel}</td>
     <td>${m.tel||'-'}</td><td>${m.sehir||'-'}</td>
     <td>${m.tip==='kurumsal'||m.tip==='kobi'?'VN: '+(m.vergino||'-'):'TC: '+(m.tc||'-')}</td>
@@ -2778,6 +2778,11 @@ function openMusteriDetay(id){
       <button onclick="navigator.clipboard.writeText('${m.iban}').then(()=>toast('IBAN kopyalandı','success'))" class="btn btn-outline btn-xs">📋 Kopyala</button>
     </div>`:'<div class="dr"><label>IBAN</label><span style="color:var(--muted);">Kayıtlı IBAN yok</span></div>';
 
+  // Ek veriler
+  const iptaller=DB.iptaller.filter(i=>i.musteriId===id);
+  const notlar=(DB.notlar||[]).filter(n=>n.musteriId===id);
+  const taksitler=(DB.taksitler||[]).filter(t=>t.musteriId===id);
+
   const html=`
     <div class="detail-grid" style="margin-bottom:14px;">
       <div class="dr"><label>Ad Soyad</label><span>${m.ad}</span></div>
@@ -2798,17 +2803,33 @@ function openMusteriDetay(id){
       <th>Şirket</th><th>Poliçe Türü</th><th>İşlem Türü</th><th>TC</th><th>Vergi No</th>
       <th>Plaka</th><th>Belge Seri</th>
       <th>Tanzim</th><th>Başlama</th><th>Bitiş</th>
-      <th>Net</th><th>Brüt</th><th>Ac.Komisyon</th>
+      <th>Net</th><th>Brüt</th><th>Ac.Komisyon</th><th>Belgeler</th>
     </tr></thead><tbody>${polices.map(p=>{
       const a=getAcente(p.acenteId);
-      return `<tr>
-        <td>${p.sirket||'-'}</td><td>${p.polTur||'-'}</td><td>${p.islemTur||'-'}</td>
-        <td>${p.tc||m.tc||'-'}</td><td>${p.vergino||'-'}</td>
-        <td>${p.plaka||'-'}</td><td>${p.ruhsat||'-'}</td>
-        <td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
-        <td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
-        <td>${a?a.ad+' – ':''}₺${fmt(p.ackomisyon)}</td>
-      </tr>`;
+      const docs=p.docs||{};
+      // Belge butonları oluştur
+      let docBtns='';
+      if(docs.ruhsat) docBtns+='<div style="margin-bottom:3px;"><span style="font-size:9px;font-weight:700;color:var(--muted);">📋 Ruhsat</span><div style="display:flex;gap:2px;margin-top:2px;">'
+        +'<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+p.id+'" data-dtype="ruhsat" data-action="preview" onclick="docBtnClick(this)">👁️</button>'
+        +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+p.id+'" data-dtype="ruhsat" data-action="download" onclick="docBtnClick(this)">⬇️</button>'
+        +'</div></div>';
+      if(docs.tc) docBtns+='<div style="margin-bottom:3px;"><span style="font-size:9px;font-weight:700;color:var(--muted);">🪪 Kimlik</span><div style="display:flex;gap:2px;margin-top:2px;">'
+        +'<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+p.id+'" data-dtype="tc" data-action="preview" onclick="docBtnClick(this)">👁️</button>'
+        +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+p.id+'" data-dtype="tc" data-action="download" onclick="docBtnClick(this)">⬇️</button>'
+        +'</div></div>';
+      if(docs.pdf) docBtns+='<div><span style="font-size:9px;font-weight:700;color:var(--muted);">📑 PDF</span><div style="display:flex;gap:2px;margin-top:2px;">'
+        +'<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+p.id+'" data-dtype="pdf" data-action="preview" onclick="docBtnClick(this)">👁️</button>'
+        +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-pid="'+p.id+'" data-dtype="pdf" data-action="download" onclick="docBtnClick(this)">⬇️</button>'
+        +'</div></div>';
+      return '<tr>'
+        +'<td>'+( p.sirket||'-')+'</td><td>'+(p.polTur||'-')+'</td><td>'+(p.islemTur||'-')+'</td>'
+        +'<td>'+(p.tc||m.tc||'-')+'</td><td>'+(p.vergino||'-')+'</td>'
+        +'<td>'+(p.plaka||'-')+'</td><td>'+(p.ruhsat||'-')+'</td>'
+        +'<td>'+fmtD(p.tanzim)+'</td><td>'+fmtD(p.baslama)+'</td><td>'+fmtD(p.bitis)+'</td>'
+        +'<td>₺'+fmt(p.net)+'</td><td>₺'+fmt(p.brut)+'</td>'
+        +'<td>'+(a?a.ad+' – ':'')+'₺'+fmt(p.ackomisyon)+'</td>'
+        +'<td style="min-width:80px;">'+(docBtns||'<span style="color:var(--muted);font-size:10px;">Belge yok</span>')+'</td>'
+        +'</tr>';
     }).join('')}</tbody></table></div>`:'<div style="color:var(--muted);font-size:12px;padding:8px 0;">Poliçe yok</div>'}
 
     <div style="margin:18px 0 8px;font-weight:700;color:var(--primary);">💳 Ödemeler / Tahsilatlar (${tahsilatlar.length})</div>
@@ -2852,11 +2873,42 @@ function openMusteriDetay(id){
         <td style="color:var(--success);">₺${fmt(c.alacak)}</td>
         <td>${c.aciklama||'-'}</td>
         <td style="display:flex;gap:4px;">
-          <button class="btn btn-info btn-xs" onclick='cariDetayDuzenle("${c.id}")'>✏️ Düzenle</button>
-          <button class="btn btn-danger btn-xs" onclick='cariDetaySil("${c.id}","${m.id}")'>🗑️ Sil</button>
+          <button class="btn btn-info btn-xs" onclick='cariDetayDuzenle("${c.id}")'>✏️</button>
+          <button class="btn btn-danger btn-xs" onclick='cariDetaySil("${c.id}","${m.id}")'>🗑️</button>
         </td>
       </tr>`;
     }).join('')}</tbody></table></div>`:'<div style="color:var(--muted);font-size:12px;padding:8px 0;">Cari hareket yok</div>'}
+
+    ${iptaller.length?`<div style="margin:18px 0 8px;font-weight:700;color:var(--primary);">🔄 İptal & İadeler (${iptaller.length})</div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>İptal Tarihi</th><th>Poliçe No</th><th>Şirket</th><th>Brüt</th><th>Net</th><th>Gerçek İade</th><th>MK İade</th><th>Kazanç</th>
+    </tr></thead><tbody>${iptaller.map(ii=>`<tr>
+      <td>${fmtD(ii.iptaltarihi)}</td><td>${ii.polNo||'-'}</td><td>${ii.sirket||'-'}</td>
+      <td>₺${fmt(ii.brut)}</td><td>₺${fmt(ii.net)}</td>
+      <td style="color:var(--success);">₺${fmt(ii.gercekIade)}</td>
+      <td style="color:var(--warning);">₺${fmt(ii.mkIade)}</td>
+      <td style="color:var(--accent);font-weight:700;">₺${fmt(ii.kazanc)}</td>
+    </tr>`).join('')}</tbody></table></div>`:''}
+
+    ${taksitler.length?`<div style="margin:18px 0 8px;font-weight:700;color:var(--primary);">💰 Taksit Planı (${taksitler.length} taksit)</div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>#</th><th>Poliçe No</th><th>Tarih</th><th>Tutar</th><th>Durum</th>
+    </tr></thead><tbody>${taksitler.map(t=>{
+      const sts=t.durum==='odendi'?'✅ Ödendi':t.tarih&&t.tarih<new Date().toISOString().substr(0,10)?'🔴 Gecikti':'⏳ Bekliyor';
+      return '<tr>'
+        +'<td>'+t.no+'/'+t.toplam+'</td>'
+        +'<td>'+(t.polNo||'-')+'</td>'
+        +'<td>'+fmtD(t.tarih)+'</td>'
+        +'<td style="font-weight:700;">₺'+fmt(t.tutar)+'</td>'
+        +'<td>'+sts+'</td>'
+        +'</tr>';
+    }).join('')}</tbody></table></div>`:''}
+
+    ${notlar.length?`<div style="margin:18px 0 8px;font-weight:700;color:var(--primary);">📝 Notlar (${notlar.length})</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">${notlar.map(n=>`<div style="background:color-mix(in srgb,var(--warning) 10%,transparent);border-left:3px solid var(--warning);border-radius:6px;padding:10px 14px;">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${fmtD(n.tarih)||''}</div>
+      <div style="font-size:13px;">${(n.metin||'').replace(/</g,'&lt;')}</div>
+    </div>`).join('')}</div>`:''}
   `;
   openFP('👤 '+m.ad+' – Müşteri Detayı',html,
     `<button class="btn btn-primary btn-sm" onclick='editMusteri("${m.id}");closeFP()'>✏️ Düzenle</button>
@@ -3285,7 +3337,7 @@ function renderPoliceListesi(){
   tb.innerHTML=list.map(p=>{
     const m=getMusteri(p.musteriId);const a=getAcente(p.acenteId);
     return `<tr>
-      <td><b>${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
       <td>${p.polNo}</td><td>${p.plaka||'-'}</td><td>${p.ruhsat||'-'}</td><td>${a?a.ad:'-'}</td>
       <td>${p.oran||0}%</td><td>₺${fmt(p.ackomisyon)}</td><td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
       <td><span class="badge ${p.odemeDurum==='odendi'?'badge-success':p.odemeDurum==='taksitli'?'badge-info':'badge-danger'}">${p.odemeDurum==='odendi'?'Ödendi':p.odemeDurum==='taksitli'?'💰 Taksitli':'Ödenmedi'}</span></td>
@@ -3559,16 +3611,17 @@ function renderTakip(){
     const tB=cs.reduce((s,c)=>s+(c.borc||0),0);
     const tA=cs.reduce((s,c)=>s+(c.alacak||0),0);
     return `<tr>
-      <td><b>${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
       <td>${p.polNo}</td><td>${p.sirket||'-'}</td><td>${a?a.ad:'-'}</td>
       <td>${p.oran||0}%</td><td>₺${fmt(p.ackomisyon)}</td><td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
       <td style="color:var(--accent);">₺${fmt(tB)}</td><td style="color:var(--success);">₺${fmt(tA)}</td>
       <td style="font-weight:700;color:${(tB-tA)>0?'var(--accent)':'var(--success)'};">₺${fmt(tB-tA)}</td>
-      <td>${p.aciklama||'-'}</td>
-      <td style="display:flex;gap:3px;">
+      <td>${p.aciklama?`<button class="btn btn-warning btn-xs" onclick='showAciklamaPopup(this,"${p.id}")'>💬</button>`:'-'}</td>
+      <td style="display:flex;gap:3px;flex-wrap:nowrap;">
         <button class="btn btn-primary btn-xs" onclick='editPolice("${p.id}")'>✏️</button>
         <button class="btn btn-danger btn-xs" onclick='delPolice("${p.id}");renderTakip()'>🗑️</button>
         <button class="btn btn-success btn-xs" onclick='detayPolice("${p.id}")'>👁️</button>
+        ${(p.docs&&(p.docs.ruhsat||p.docs.tc||p.docs.pdf))?`<button class="btn btn-info btn-xs" onclick='openPoliceDocsModal("${p.id}")'>📎</button>`:''}
       </td>
     </tr>`;
   }).join(''):'<tr><td colspan="16" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';
@@ -3618,7 +3671,7 @@ function renderCari(){
       ?'<span style="background:#dcfce7;color:#166534;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">Alacaklı</span>'
       :'<span style="background:var(--bg);color:var(--muted);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">Sıfır</span>';
     return `<tr>
-      <td><b style="cursor:pointer;color:var(--info);" onclick='openMusteriDetay("${x.musteriId}")'>${x.m?x.m.ad:'-'}</b>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${x.m?x.m.ad:'-'}</b>
         <div style="font-size:10px;color:var(--muted);">${x.kayitlar.length} işlem</div></td>
       <td style="color:var(--danger);font-weight:700;">₺${fmt(x.toplamBorc)}</td>
       <td style="color:var(--success);font-weight:700;">₺${fmt(x.toplamAlacak)}</td>
@@ -3777,7 +3830,7 @@ function renderTahsilat(){
     const ibanDisplay=t.iban?`<span style="font-size:10px;font-family:monospace;letter-spacing:.3px;">${t.iban}</span>`:'<span style="color:var(--muted);">-</span>';
     return `<tr>
       <td>${fmtD(t.tarih)}</td>
-      <td><b>${m?m.ad:'-'}</b>${m&&m.iban&&!t.iban?`<br><span style="font-size:9px;color:var(--muted);">${m.iban}</span>`:''}
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m?m.ad:'-'}</b>${m&&m.iban&&!t.iban?`<br><span style="font-size:9px;color:var(--muted);">${m.iban}</span>`:''}
       </td>
       <td>${t.polNo||'-'}</td><td>${t.sirket||'-'}</td><td>${t.plaka||'-'}</td>
       <td style="color:var(--accent);font-weight:700;">₺${fmt(t.borc)}</td>
@@ -4471,7 +4524,7 @@ function renderIptal(){
   tb.innerHTML=DB.iptaller.map(ii=>{
     const m=getMusteri(ii.musteriId);
     return '<tr>'+
-      '<td><b>'+(m?m.ad:'-')+'</b></td>'+
+      '<td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="\'+ ii.musteriId +\'">'+(m?m.ad:'-')+'</b></td>'+
       '<td>'+(ii.polNo||'-')+'</td>'+
       '<td>'+(ii.sirket||'-')+'</td>'+
       '<td>'+fmtD(ii.iptaltarihi)+'</td>'+
