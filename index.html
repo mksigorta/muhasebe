@@ -1716,6 +1716,42 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       </div>
     </div>
 
+    <!-- NOTER BİLGİLERİ -->
+    <div style="margin-top:14px;padding:12px 14px;border:2px solid var(--primary);border-radius:12px;background:color-mix(in srgb,var(--primary) 5%,transparent);">
+      <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:10px;">📜 NOTER BİLGİLERİ (Araç Satış için)</div>
+      <div class="form-grid">
+        <div class="fg"><label>Noter İsmi</label><input type="text" id="ii-noter-ismi" placeholder="Örn: Ankara 5. Noteri"></div>
+        <div class="fg"><label>Noter Numarası / Yevmiye No</label><input type="text" id="ii-noter-no" placeholder="Örn: 12345"></div>
+      </div>
+    </div>
+
+    <!-- BELGE YÜKLEME -->
+    <div style="margin-top:14px;padding:12px 14px;border:2px solid var(--success);border-radius:12px;background:color-mix(in srgb,var(--success) 5%,transparent);">
+      <div style="font-size:11px;font-weight:800;color:var(--success);margin-bottom:12px;">📎 BELGE YÜKLEME (Opsiyonel)</div>
+      <div class="doc-upload-section">
+        <div class="doc-upload-box">
+          <div class="doc-upload-label">📄 Satış Senedi</div>
+          <div class="doc-upload-zone" onclick="document.getElementById('ii-file-senet').click()" id="ii-dzone-senet">
+            <span class="doc-upload-icon">📄</span>
+            <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+            <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+          </div>
+          <input type="file" id="ii-file-senet" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleIptalDocUpload('senet',this)">
+          <div class="doc-preview" id="ii-dpreview-senet" style="display:none;"></div>
+        </div>
+        <div class="doc-upload-box">
+          <div class="doc-upload-label">📑 İptal & İade Poliçesi PDF</div>
+          <div class="doc-upload-zone" onclick="document.getElementById('ii-file-pdf').click()" id="ii-dzone-pdf">
+            <span class="doc-upload-icon">📑</span>
+            <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+            <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+          </div>
+          <input type="file" id="ii-file-pdf" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleIptalDocUpload('pdf',this)">
+          <div class="doc-preview" id="ii-dpreview-pdf" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="btn-group" style="margin-top:14px;">
       <button class="btn btn-danger" onclick="saveIptal()">🔄 Poliçeyi İptal Et &amp; Kaydet</button>
       <button class="btn btn-outline" onclick="resetIptalForm()">✖ Temizle</button>
@@ -1741,7 +1777,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
           <th>Gerçek İade</th><th>Gerçek Çalışan</th>
           <th>MK İade</th><th>Bana Göre Çalışan</th>
           <th>Kazanç</th><th>Ac.İade</th><th>Ac.Bana Kalan</th>
-          <th>MKöçe Kazanç</th><th>İşlem</th>
+          <th>MKöçe Kazanç</th><th>Noter</th><th>Belgeler</th><th>İşlem</th>
         </tr></thead>
         <tbody id="tbody-iptal"></tbody>
       </table>
@@ -4150,45 +4186,16 @@ function closeDocsModal(){
 
 function previewDocFromPolice(policeId, type){
   const p = getPolice(policeId);
-  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadı','error');return;}
-  const doc = p.docs[type];
-  const data = doc.data;
-  if(!data){toast('Belge verisi boş','error');return;}
-  try{
-    if(doc.mime && doc.mime.startsWith('image/')){
-      const w = window.open('','_blank');
-      if(w) w.document.write('<html><head><title>'+doc.name+'</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+data+'" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
-    } else {
-      const parts = data.split(',');
-      const b64 = parts.length > 1 ? parts[1] : parts[0];
-      const byteStr = atob(b64);
-      const ab = new ArrayBuffer(byteStr.length);
-      const ia = new Uint8Array(ab);
-      for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
-      const mime = doc.mime || 'application/pdf';
-      const blob = new Blob([ab],{type:mime});
-      const url = URL.createObjectURL(blob);
-      window.open(url,'_blank');
-      setTimeout(()=>URL.revokeObjectURL(url),20000);
-    }
-  }catch(err){toast('Önizleme hatası: '+err.message,'error');}
+  if(!p||!p.docs||!p.docs[type]){toast('Belge bulunamadı','error');return;}
+  _openDocViewer(p.docs[type]);
 }
 
 function downloadDocFromPolice(policeId, type){
   const p = getPolice(policeId);
-  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadı','error');return;}
-  const doc = p.docs[type];
-  if(!doc.data){toast('Belge verisi boş','error');return;}
-  try{
-    const a = document.createElement('a');
-    a.href = doc.data;
-    a.download = doc.name || (type+'.pdf');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    toast(doc.name + ' indiriliyor','success');
-  }catch(err){toast('İndirme hatası: '+err.message,'error');}
+  if(!p||!p.docs||!p.docs[type]){toast('Belge bulunamadı','error');return;}
+  _downloadDoc(p.docs[type]);
 }
+
 
 function saveAcente(){
   const ad=gv('ac-ad').trim();if(!ad){toast('Acente adı zorunludur!','error');return;}
@@ -4540,7 +4547,9 @@ function saveIptal(){
   const mkIade=parseFloat(gv('ii-mkiade'))||0;
   const obj={id:uid(),musteriId:mid,policeId:pid,tanzim:p.tanzim,baslama:p.baslama,bitis:p.bitis,
     iptaltarihi:gv('ii-iptaltarihi'),polNo:p.polNo,sirket:p.sirket,acenteId:p.acenteId,
-    sebep:gv('ii-sebep'),..._iptalCalc,mkIade};
+    sebep:gv('ii-sebep'),..._iptalCalc,mkIade,
+    noterIsmi:gv('ii-noter-ismi')||'',noterNo:gv('ii-noter-no')||'',
+    docs:{senet:_iiDocsTemp.senet?{..._iiDocsTemp.senet}:null,pdf:_iiDocsTemp.pdf?{..._iiDocsTemp.pdf}:null}};
   DB.iptaller.push(obj);
   if(mkIade>0){
     DB.cariler.push({id:uid(),musteriId:mid,policeId:pid,
@@ -4562,15 +4571,38 @@ function resetIptalForm(){
    'ii-brut','ii-net','ii-ackomisyon','ii-acoran','ii-gunluk','ii-acgunluk',
    'ii-kullanilan','ii-kalan','ii-gercekiade','ii-gercek-calisan',
    'ii-mkiade','ii-mk-calisan','ii-kazanc','ii-ackomiade','ii-ac-bakalan','ii-mkkazanc',
-   'ii-sirket','ii-acente'].forEach(id=>sv(id,''));
+   'ii-sirket','ii-acente','ii-noter-ismi','ii-noter-no'].forEach(id=>sv(id,''));
   const oz=byId('ii-formul-ozet');if(oz)oz.textContent='Poli\xe7e se\xe7in, tarih ve MK \u0130ade tutar\u0131 girin\u2026';
   _iptalCalc={};
+  clearIptalDocs();
 }
 function renderIptal(){
   const tb=byId('tbody-iptal');
-  if(!DB.iptaller.length){tb.innerHTML='<tr><td colspan="19" style="text-align:center;color:var(--muted);padding:18px;">Kay\u0131t bulunamad\u0131</td></tr>';return;}
+  if(!DB.iptaller.length){tb.innerHTML='<tr><td colspan="21" style="text-align:center;color:var(--muted);padding:18px;">Kay\u0131t bulunamad\u0131</td></tr>';return;}
   tb.innerHTML=DB.iptaller.map(ii=>{
     const m=getMusteri(ii.musteriId);
+    const docs=ii.docs||{};
+    const hasDocs=docs.senet||docs.pdf;
+    const noterInfo=(ii.noterIsmi||ii.noterNo)
+      ?'<div style="font-size:10px;"><b>'+(ii.noterIsmi||'-')+'</b>'+(ii.noterNo?'<br><span style="color:var(--muted);">No: '+ii.noterNo+'</span>':'')+'</div>'
+      :'<span style="color:var(--muted);font-size:10px;">-</span>';
+    let docBtns='<div style="display:flex;flex-direction:column;gap:4px;min-width:90px;">';
+    if(docs.senet){
+      docBtns+='<div style="font-size:9px;font-weight:700;color:var(--muted);">📄 Senet</div>';
+      docBtns+='<div style="display:flex;gap:2px;">'
+        +'<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-iid="'+ii.id+'" data-dtype="senet" data-action="preview" onclick="iptalDocBtnClick(this)">👁️</button>'
+        +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-iid="'+ii.id+'" data-dtype="senet" data-action="download" onclick="iptalDocBtnClick(this)">⬇️</button>'
+        +'</div>';
+    }
+    if(docs.pdf){
+      docBtns+='<div style="font-size:9px;font-weight:700;color:var(--muted);">📑 Poliçe PDF</div>';
+      docBtns+='<div style="display:flex;gap:2px;">'
+        +'<button class="btn btn-outline btn-xs" style="font-size:10px;padding:2px 5px;" data-iid="'+ii.id+'" data-dtype="pdf" data-action="preview" onclick="iptalDocBtnClick(this)">👁️</button>'
+        +'<button class="btn btn-info btn-xs" style="font-size:10px;padding:2px 5px;" data-iid="'+ii.id+'" data-dtype="pdf" data-action="download" onclick="iptalDocBtnClick(this)">⬇️</button>'
+        +'</div>';
+    }
+    if(!hasDocs) docBtns+='<span style="color:var(--muted);font-size:10px;">Belge yok</span>';
+    docBtns+='</div>';
     return '<tr>'+
       '<td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="\'+ ii.musteriId +\'">'+(m?m.ad:'-')+'</b></td>'+
       '<td>'+(ii.polNo||'-')+'</td>'+
@@ -4590,10 +4622,121 @@ function renderIptal(){
       '<td style="color:var(--info);">\u20ba'+fmt(ii.acIade)+'</td>'+
       '<td style="color:var(--primary);">\u20ba'+fmt(ii.acBaKalan)+'</td>'+
       '<td style="color:var(--accent);font-weight:800;background:color-mix(in srgb,var(--accent) 8%,transparent);">\u20ba'+fmt(ii.mkKazanc)+'</td>'+
-      '<td><button class="btn btn-danger btn-xs" onclick=\'delIptal("'+ii.id+'")\'>\u{1F5D1}\uFE0F</button></td>'+
+      '<td style="min-width:100px;">'+noterInfo+'</td>'+
+      '<td style="min-width:95px;">'+docBtns+'</td>'+
+      '<td style="white-space:nowrap;"><button class="btn btn-danger btn-xs" onclick=\'delIptal("'+ii.id+'")\'>\u{1F5D1}\uFE0F</button></td>'+
       '</tr>';
   }).join('');
 }
+// ── İPTAL BELGE FONKSİYONLARI ──
+const _iiDocsTemp = {senet:null, pdf:null};
+
+function handleIptalDocUpload(type, input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024){toast('Dosya 5 MBdan büyük olamaz!','error');input.value='';return;}
+  const reader = new FileReader();
+  reader.onload = function(e){
+    _iiDocsTemp[type] = {name:file.name, data:e.target.result, mime:file.type};
+    const zone = byId('ii-dzone-'+type);
+    const preview = byId('ii-dpreview-'+type);
+    if(zone){zone.classList.add('has-file');zone.querySelector('.doc-upload-text').textContent='✅ '+file.name;}
+    if(preview){
+      preview.style.display='block';
+      const isImg = file.type.startsWith('image/');
+      const imgHtml = isImg?'<img src="'+e.target.result+'" style="max-width:100%;max-height:100px;border-radius:4px;margin-top:4px;">'
+        :'<div style="font-size:10px;color:var(--muted);margin-top:4px;">📑 PDF Dosyası</div>';
+      preview.innerHTML='<div class="doc-preview-name">📎 '+file.name+'</div>'+imgHtml
+        +'<div class="doc-preview-actions" id="ii-dpa-'+type+'"></div>';
+      const dpa=byId('ii-dpa-'+type);
+      if(dpa){
+        const b1=document.createElement('button');b1.className='btn btn-outline btn-xs';b1.textContent='👁️ Görüntüle';
+        b1.onclick=function(){previewIptalDoc(type);};
+        const b2=document.createElement('button');b2.className='btn btn-danger btn-xs';b2.textContent='🗑️ Kaldır';
+        b2.onclick=function(){removeIptalDoc(type);};
+        dpa.appendChild(b1);dpa.appendChild(b2);
+      }
+    }
+    toast(file.name+' yüklendi','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewIptalDoc(type){
+  const doc=_iiDocsTemp[type];
+  if(!doc){toast('Belge bulunamadı','error');return;}
+  _openDocViewer(doc);
+}
+
+function removeIptalDoc(type){
+  _iiDocsTemp[type]=null;
+  const zone=byId('ii-dzone-'+type);
+  const preview=byId('ii-dpreview-'+type);
+  const input=byId('ii-file-'+type);
+  if(zone){zone.classList.remove('has-file');zone.querySelector('.doc-upload-text').textContent='Dosya seçmek için tıklayın';}
+  if(preview){preview.style.display='none';preview.innerHTML='';}
+  if(input) input.value='';
+  toast('Belge kaldırıldı','');
+}
+
+function clearIptalDocs(){
+  ['senet','pdf'].forEach(t=>{
+    _iiDocsTemp[t]=null;
+    const zone=byId('ii-dzone-'+t);
+    const preview=byId('ii-dpreview-'+t);
+    const input=byId('ii-file-'+t);
+    if(zone){zone.classList.remove('has-file');const txt=zone.querySelector('.doc-upload-text');if(txt)txt.textContent='Dosya seçmek için tıklayın';}
+    if(preview){preview.style.display='none';preview.innerHTML='';}
+    if(input) input.value='';
+  });
+}
+
+function iptalDocBtnClick(btn){
+  const iid=btn.getAttribute('data-iid');
+  const dtype=btn.getAttribute('data-dtype');
+  const action=btn.getAttribute('data-action');
+  if(!iid||!dtype){toast('Belge bilgisi eksik','error');return;}
+  const ii=DB.iptaller.find(x=>x.id===iid);
+  if(!ii||!ii.docs||!ii.docs[dtype]){toast('Belge bulunamadı','error');return;}
+  const doc=ii.docs[dtype];
+  if(action==='preview') _openDocViewer(doc);
+  else if(action==='download') _downloadDoc(doc);
+}
+
+function _openDocViewer(doc){
+  if(!doc||!doc.data){toast('Belge verisi boş','error');return;}
+  try{
+    if(doc.mime&&doc.mime.startsWith('image/')){
+      const w=window.open('','_blank');
+      if(w) w.document.write('<html><head><title>'+doc.name+'</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+doc.data+'" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
+    } else {
+      const parts=doc.data.split(',');
+      const b64=parts.length>1?parts[1]:parts[0];
+      const byteStr=atob(b64);
+      const ab=new ArrayBuffer(byteStr.length);
+      const ia=new Uint8Array(ab);
+      for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
+      const blob=new Blob([ab],{type:doc.mime||'application/pdf'});
+      const url=URL.createObjectURL(blob);
+      window.open(url,'_blank');
+      setTimeout(()=>URL.revokeObjectURL(url),20000);
+    }
+  }catch(err){toast('Önizleme hatası: '+err.message,'error');}
+}
+
+function _downloadDoc(doc){
+  if(!doc||!doc.data){toast('Belge verisi boş','error');return;}
+  try{
+    const a=document.createElement('a');
+    a.href=doc.data;
+    a.download=doc.name||'belge';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast(doc.name+' indiriliyor','success');
+  }catch(err){toast('İndirme hatası: '+err.message,'error');}
+}
+
 function delIptal(id){if(!confirm('Silinsin mi?'))return;DB.iptaller=DB.iptaller.filter(i=>i.id!==id);saveDB();renderIptal();updateStats();}
 
 function _iptalCSS(){
