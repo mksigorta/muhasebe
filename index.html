@@ -1488,7 +1488,12 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     <div class="table-wrap">
       <table id="tbl-tahsilat">
         <thead><tr>
-          <th>Tarih</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>Plaka</th>
+          <th>Tarih</th><th>Müşteri</th>
+          <th>Şirket</th><th>Poliçe Türü</th><th>İşlem Türü</th>
+          <th>TC</th><th>Vergi No</th>
+          <th>Pol.No</th><th>Plaka</th><th>Belge Seri</th>
+          <th>Tanzim</th><th>Başlama</th><th>Bitiş</th>
+          <th>Net Tutar</th><th>Brüt Tutar</th><th>Ac.Komisyon</th><th>Kom.İadesi</th>
           <th>Borç</th><th>Alacak</th><th>Kalan</th>
           <th>Yöntem</th><th>Durum</th><th>IBAN</th>
           <th>Açıklama</th><th>İşlem</th>
@@ -1583,7 +1588,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     <div class="card-header"><div class="card-title">📋 Acente Tahsilat Listesi</div></div>
     <div class="table-wrap">
       <table id="tbl-at">
-        <thead><tr><th>Tarih</th><th>Acente</th><th>Poliçe No</th><th>Tutar</th><th>Açıklama</th><th>İşlem</th></tr></thead>
+        <thead><tr><th>Tarih</th><th>Acente</th><th>Şirket</th><th>Poliçe Türü</th><th>İşlem Türü</th><th>TC</th><th>Vergi No</th><th>Müşteri</th><th>Pol.No</th><th>Plaka</th><th>Belge Seri</th><th>Tanzim</th><th>Başlama</th><th>Bitiş</th><th>Net Tutar</th><th>Brüt Tutar</th><th>Ac.Komisyon</th><th>Kom.İadesi</th><th>Tahsilat Tutarı</th><th>Açıklama</th><th>İşlem</th></tr></thead>
         <tbody id="tbody-at"></tbody>
       </table>
     </div>
@@ -3883,7 +3888,7 @@ function renderTahsilat(){
     return true;
   });
   const tb=byId('tbody-tahsilat');
-  if(!list.length){tb.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
+  if(!list.length){tb.innerHTML='<tr><td colspan="25" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
   let run=0;
   tb.innerHTML=list.map(t=>{
     const m=getMusteri(t.musteriId);run+=t.borc-t.alacak;
@@ -3892,11 +3897,28 @@ function renderTahsilat(){
     const durClr=DURUM_CLR[durum]||'var(--text)';
     const yon=YONTEM_LABEL[t.odemeyontemi||'']||t.odemeyontemi||'-';
     const ibanDisplay=t.iban?`<span style="font-size:10px;font-family:monospace;letter-spacing:.3px;">${t.iban}</span>`:'<span style="color:var(--muted);">-</span>';
+    // Poliçeyi bul: polNo+musteriId → polNo genel
+    const tp=t.polNo?(DB.policeler.find(x=>x.musteriId===t.musteriId&&x.polNo===t.polNo)||DB.policeler.find(x=>x.polNo===t.polNo)):null;
+    const refPidT=tp?tp.id:null;
+    const acIadeT=refPidT?DB.iptaller.filter(ii=>ii.policeId===refPidT).reduce((s,ii)=>s+(ii.acIade||0),0):0;
     return `<tr>
       <td>${fmtD(t.tarih)}</td>
-      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay('${t.musteriId}')">${m?m.ad:'-'}</b>${m&&m.iban&&!t.iban?`<br><span style="font-size:9px;color:var(--muted);">${m.iban}</span>`:''}
-      </td>
-      <td>${t.polNo||'-'}</td><td>${t.sirket||'-'}</td><td>${t.plaka||'-'}</td>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay('${t.musteriId}')">${m?m.ad:'-'}</b>${m&&m.iban&&!t.iban?`<br><span style="font-size:9px;color:var(--muted);">${m.iban}</span>`:''}</td>
+      <td>${tp?tp.sirket||t.sirket||'-':t.sirket||'-'}</td>
+      <td>${tp?tp.polTur||'-':'-'}</td>
+      <td>${tp?tp.islemTur||'-':'-'}</td>
+      <td>${tp?(tp.tc||(m?m.tc:'')||'-'):(m?m.tc||'-':'-')}</td>
+      <td>${tp?tp.vergino||'-':(m?m.vergino||'-':'-')}</td>
+      <td>${tp?tp.mPolNo||tp.polNo||t.polNo||'-':t.polNo||'-'}</td>
+      <td>${tp?tp.plaka||t.plaka||'-':t.plaka||'-'}</td>
+      <td>${tp?tp.ruhsat||'-':'-'}</td>
+      <td>${tp?fmtD(tp.tanzim):'-'}</td>
+      <td>${tp?fmtD(tp.baslama):'-'}</td>
+      <td>${tp?fmtD(tp.bitis):'-'}</td>
+      <td>${tp?'₺'+fmt(tp.net):'-'}</td>
+      <td>${tp?'₺'+fmt(tp.brut):'-'}</td>
+      <td style="color:var(--accent);font-weight:700;">${tp?'₺'+fmt(tp.ackomisyon):'-'}</td>
+      <td style="color:var(--warning);font-weight:700;">${acIadeT>0?'₺'+fmt(acIadeT):'-'}</td>
       <td style="color:var(--accent);font-weight:700;">₺${fmt(t.borc)}</td>
       <td style="color:var(--success);font-weight:700;">₺${fmt(t.alacak)}</td>
       <td style="font-weight:700;color:${run>0?'var(--accent)':run<0?'var(--success)':'var(--muted)'};">₺${fmt(run)}</td>
@@ -4281,26 +4303,27 @@ function openAcenteDetay(id){
       <th>Komisyon İadesi</th>
       <th>Tahsilat Tarihi</th><th>Tahsilat Tutarı</th><th>Açıklama</th>
     </tr></thead><tbody>${atList.map(t=>{
-      // Poliçeyi bul: policeId → polNo → sirket+plaka sıralamasıyla
+      // 1) policeId ile direkt bul  2) polNo ile acentede  3) polNo genel
       const p=t.policeId?getPolice(t.policeId)
-        :(t.polNo?DB.policeler.find(x=>x.acenteId===id&&x.polNo===t.polNo):null);
-      // Müşteriyi bul: poliçeden veya direkt musteriId'den
-      const m=p?getMusteri(p.musteriId):(t.musteriId?getMusteri(t.musteriId):null);
-      // Komisyon iadesi: bu acenteye ait iptallerden bu poliçeye bağlı acIade
-      const acIadeToplam=DB.iptaller
-        .filter(ii=>(ii.acenteId===id||ii.iadAcenteId===id)&&(p?ii.policeId===p.id:t.policeId?ii.policeId===t.policeId:false))
-        .reduce((s,ii)=>s+(ii.acIade||0),0);
-      const tipLabel=t.tip==='iade'?'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--warning) 15%,transparent);color:var(--warning);">İade</span>'
+        :t.polNo?(DB.policeler.find(x=>x.acenteId===id&&x.polNo===t.polNo)||DB.policeler.find(x=>x.polNo===t.polNo))
+        :null;
+      // Müşteriyi bul
+      const m=p?getMusteri(p.musteriId):t.musteriId?getMusteri(t.musteriId):null;
+      // Komisyon iadesi: poliçeye bağlı tüm iptallerin acIade toplamı
+      const refPid=p?p.id:t.policeId||null;
+      const acIadeToplam=refPid?DB.iptaller.filter(ii=>ii.policeId===refPid).reduce((s,ii)=>s+(ii.acIade||0),0):0;
+      const tipLabel=t.tip==='iade'
+        ?'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--warning) 15%,transparent);color:var(--warning);">İade</span>'
         :'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success);">Tahsilat</span>';
       return '<tr>'
-        +'<td>'+(p?p.sirket||'-':t.sirket||'-')+'</td>'
+        +'<td>'+(p?p.sirket||t.sirket||'-':t.sirket||'-')+'</td>'
         +'<td>'+(p?p.polTur||'-':'-')+'</td>'
         +'<td>'+(p?p.islemTur||'-':'-')+'</td>'
         +'<td>'+(p?(p.tc||(m?m.tc:'')||'-'):(m?m.tc||'-':'-'))+'</td>'
-        +'<td>'+(p?p.vergino||'-':'-')+'</td>'
-        +'<td><b>'+(m?m.ad:t.musteriId?(getMusteri(t.musteriId)||{ad:'-'}).ad:'-')+'</b></td>'
+        +'<td>'+(p?p.vergino||'-':(m?m.vergino||'-':'-'))+'</td>'
+        +'<td><b>'+(m?m.ad:'-')+'</b></td>'
         +'<td>'+(p?p.mPolNo||p.polNo||'-':t.polNo||'-')+'</td>'
-        +'<td>'+(p?p.plaka||'-':t.plaka||'-')+'</td>'
+        +'<td>'+(p?p.plaka||t.plaka||'-':t.plaka||'-')+'</td>'
         +'<td>'+(p?p.ruhsat||'-':'-')+'</td>'
         +'<td>'+(p?fmtD(p.tanzim):'-')+'</td>'
         +'<td>'+(p?fmtD(p.baslama):'-')+'</td>'
@@ -4311,7 +4334,7 @@ function openAcenteDetay(id){
         +'<td style="color:var(--warning);font-weight:700;">'+(acIadeToplam>0?'₺'+fmt(acIadeToplam):'-')+'</td>'
         +'<td>'+fmtD(t.tarih)+'</td>'
         +'<td style="font-weight:700;color:'+(t.tip==='iade'?'var(--warning)':'var(--success)')+';">₺'+fmt(t.tutar)+'</td>'
-        +'<td style="max-width:140px;">'+tipLabel+'<div style="font-size:10px;margin-top:2px;">'+(t.aciklama||'-')+'</div></td>'
+        +'<td style="max-width:160px;">'+tipLabel+'<div style="font-size:10px;margin-top:2px;color:var(--muted);">'+(t.aciklama||'-')+'</div></td>'
         +'</tr>';
     }).join('')}</tbody>
     <tfoot><tr style="font-weight:700;background:color-mix(in srgb,var(--primary) 8%,transparent);">
@@ -4369,17 +4392,46 @@ function saveAtTahsilat(){
 }
 function renderAtList(){
   const tb=byId('tbody-at');
-  if(!DB.atList.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
+  if(!DB.atList.length){tb.innerHTML='<tr><td colspan="21" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
   tb.innerHTML=DB.atList.map(t=>{
     const a=getAcente(t.acenteId);
-    const p=t.policeId?getPolice(t.policeId):null;
-    return `<tr><td>${fmtD(t.tarih)}</td><td>${a?a.ad:'-'}</td>
-      <td>${t.polNo||(p?p.polNo:'-')}</td>
-      <td style="font-weight:700;">₺${fmt(t.tutar)}</td><td>${t.aciklama||'-'}</td>
-      <td style="display:flex;gap:4px;">
-        <button class="btn btn-info btn-xs" onclick='atDuzenle("${t.id}")'>✏️ Düzenle</button>
-        <button class="btn btn-danger btn-xs" onclick='atSil("${t.id}")'>🗑️ Sil</button>
-      </td></tr>`;
+    // Poliçeyi bul: policeId → polNo+acente → polNo genel
+    const p=t.policeId?getPolice(t.policeId)
+      :t.polNo?(DB.policeler.find(x=>x.acenteId===t.acenteId&&x.polNo===t.polNo)||DB.policeler.find(x=>x.polNo===t.polNo))
+      :null;
+    const m=p?getMusteri(p.musteriId):t.musteriId?getMusteri(t.musteriId):null;
+    const refPid=p?p.id:t.policeId||null;
+    const acIade=refPid?DB.iptaller.filter(ii=>ii.policeId===refPid).reduce((s,ii)=>s+(ii.acIade||0),0):0;
+    const tipRenk=t.tip==='iade'?'var(--warning)':'var(--success)';
+    return '<tr>'
+      +'<td>'+fmtD(t.tarih)+'</td>'
+      +'<td><b>'+(a?a.ad:'-')+'</b></td>'
+      +'<td>'+(p?p.sirket||t.sirket||'-':t.sirket||'-')+'</td>'
+      +'<td>'+(p?p.polTur||'-':'-')+'</td>'
+      +'<td>'+(p?p.islemTur||'-':'-')+'</td>'
+      +'<td>'+(p?(p.tc||(m?m.tc:'')||'-'):(m?m.tc||'-':'-'))+'</td>'
+      +'<td>'+(p?p.vergino||'-':(m?m.vergino||'-':'-'))+'</td>'
+      +'<td><b>'+(m?m.ad:'-')+'</b></td>'
+      +'<td>'+(p?p.mPolNo||p.polNo||'-':t.polNo||'-')+'</td>'
+      +'<td>'+(p?p.plaka||t.plaka||'-':t.plaka||'-')+'</td>'
+      +'<td>'+(p?p.ruhsat||'-':'-')+'</td>'
+      +'<td>'+(p?fmtD(p.tanzim):'-')+'</td>'
+      +'<td>'+(p?fmtD(p.baslama):'-')+'</td>'
+      +'<td>'+(p?fmtD(p.bitis):'-')+'</td>'
+      +'<td>'+(p?'₺'+fmt(p.net):'-')+'</td>'
+      +'<td>'+(p?'₺'+fmt(p.brut):'-')+'</td>'
+      +'<td style="color:var(--accent);font-weight:700;">'+(p?'₺'+fmt(p.ackomisyon):'-')+'</td>'
+      +'<td style="color:var(--warning);font-weight:700;">'+(acIade>0?'₺'+fmt(acIade):'-')+'</td>'
+      +'<td style="font-weight:700;color:'+tipRenk+';">₺'+fmt(t.tutar)+'</td>'
+      +'<td style="max-width:130px;font-size:11px;">'+(t.tip==='iade'
+        ?'<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;background:color-mix(in srgb,var(--warning) 15%,transparent);color:var(--warning);">İade</span> '
+        :'<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success);">Tahsilat</span> ')
+      +(t.aciklama||'-')+'</td>'
+      +'<td style="display:flex;gap:4px;">'
+        +'<button class="btn btn-info btn-xs" onclick=\'atDuzenle("'+t.id+'")\'>✏️</button>'
+        +'<button class="btn btn-danger btn-xs" onclick=\'atSil("'+t.id+'")\'>🗑️</button>'
+      +'</td>'
+      +'</tr>';
   }).join('');
 }
 function atSil(id){
