@@ -258,6 +258,7 @@ nav a:hover .ico,.active .ico{opacity:1;}
 .page-title{font-size:14px;font-weight:700;color:var(--text);font-family:'Space Grotesk',sans-serif;letter-spacing:-.3px;}
 .topbar-right{display:flex;align-items:center;gap:12px;}
 .dt-box{text-align:right;}
+.dt-box .dt-greet{font-size:10px;font-weight:700;color:var(--primary);margin-bottom:1px;}
 .dt-box .dt-date{font-size:11px;font-weight:600;color:var(--text);}
 .dt-box .dt-time{font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono';}
 .topbar-user{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;background:var(--bg);border-radius:24px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
@@ -797,6 +798,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   </div>
   <div class="topbar-right">
     <div class="dt-box">
+      <div class="dt-greet" id="dtGreet"></div>
       <div class="dt-date" id="dtDate">--</div>
       <div class="dt-time" id="dtTime">--:--</div>
     </div>
@@ -2578,8 +2580,21 @@ function updateClock(){
   const n=new Date();
   const days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
   const months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-  sv('dtDate',days[n.getDay()]+' '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear());
-  sv('dtTime',n.toLocaleTimeString('tr-TR'));
+  const dtD=document.getElementById('dtDate');
+  const dtT=document.getElementById('dtTime');
+  const dtG=document.getElementById('dtGreet');
+  if(dtD)dtD.textContent=days[n.getDay()]+', '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear();
+  if(dtT)dtT.textContent=n.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  // Karşılama mesajı
+  const h=n.getHours();
+  const unameEl=document.getElementById('topbar-uname');
+  const isim=unameEl?unameEl.textContent.trim():'';
+  let selamlama;
+  if(h>=5&&h<12) selamlama='☀️ Günaydın'+(isim?', '+isim:'')+'!';
+  else if(h>=12&&h<17) selamlama='🌤️ İyi günler'+(isim?', '+isim:'')+'!';
+  else if(h>=17&&h<21) selamlama='🌆 İyi akşamlar'+(isim?', '+isim:'')+'!';
+  else selamlama='🌙 İyi geceler'+(isim?', '+isim:'')+'!';
+  if(dtG)dtG.textContent=selamlama;
 }
 setInterval(updateClock,1000);updateClock();
 
