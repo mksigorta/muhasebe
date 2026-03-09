@@ -695,6 +695,31 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 .theme-item .ti-label{padding:5px 8px;background:var(--tc-bg);font-size:9px;font-weight:700;color:var(--tc-text);text-align:center;border-top:1px solid rgba(0,0,0,.08);}
 @media(max-width:900px){.theme-grid{grid-template-columns:repeat(4,1fr);}}
 @media(max-width:600px){.theme-grid{grid-template-columns:repeat(3,1fr);}}
+
+/* ── BELGE YÜKLEME ALANI ── */
+.doc-upload-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px;}
+.doc-upload-box{display:flex;flex-direction:column;gap:6px;}
+.doc-upload-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.doc-upload-zone{border:2px dashed var(--border);border-radius:10px;padding:16px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s;background:var(--bg);}
+.doc-upload-zone:hover{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 5%,transparent);}
+.doc-upload-zone.has-file{border-color:var(--success);border-style:solid;background:color-mix(in srgb,var(--success) 8%,transparent);}
+.doc-upload-icon{font-size:22px;}
+.doc-upload-text{font-size:11px;font-weight:600;color:var(--text);text-align:center;}
+.doc-upload-hint{font-size:10px;color:var(--muted);}
+.doc-preview{margin-top:6px;background:color-mix(in srgb,var(--primary) 6%,transparent);border-radius:8px;padding:8px 10px;font-size:11px;}
+.doc-preview-name{font-weight:700;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-preview-actions{display:flex;gap:5px;margin-top:6px;}
+
+/* ── BELGE GÖRÜNTÜLEME MODAL ── */
+#modal-docs{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;align-items:center;justify-content:center;padding:16px;}
+.docs-modal-box{background:var(--card);border-radius:14px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.28);padding:20px 22px;}
+.docs-modal-title{font-size:15px;font-weight:800;color:var(--primary);}
+.doc-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin-bottom:10px;}
+.doc-item-icon{font-size:28px;flex-shrink:0;}
+.doc-item-info{flex:1;min-width:0;}
+.doc-item-name{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-item-type{font-size:10px;color:var(--muted);margin-top:2px;}
+.doc-item-actions{display:flex;gap:5px;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -3337,7 +3362,7 @@ function renderPoliceListesi(){
   tb.innerHTML=list.map(p=>{
     const m=getMusteri(p.musteriId);const a=getAcente(p.acenteId);
     return `<tr>
-      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay('${p.musteriId}')">${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
       <td>${p.polNo}</td><td>${p.plaka||'-'}</td><td>${p.ruhsat||'-'}</td><td>${a?a.ad:'-'}</td>
       <td>${p.oran||0}%</td><td>₺${fmt(p.ackomisyon)}</td><td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
       <td><span class="badge ${p.odemeDurum==='odendi'?'badge-success':p.odemeDurum==='taksitli'?'badge-info':'badge-danger'}">${p.odemeDurum==='odendi'?'Ödendi':p.odemeDurum==='taksitli'?'💰 Taksitli':'Ödenmedi'}</span></td>
@@ -3611,7 +3636,7 @@ function renderTakip(){
     const tB=cs.reduce((s,c)=>s+(c.borc||0),0);
     const tA=cs.reduce((s,c)=>s+(c.alacak||0),0);
     return `<tr>
-      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay('${p.musteriId}')">${m?m.ad:'-'}</b></td><td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
       <td>${p.polNo}</td><td>${p.sirket||'-'}</td><td>${a?a.ad:'-'}</td>
       <td>${p.oran||0}%</td><td>₺${fmt(p.ackomisyon)}</td><td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
       <td style="color:var(--accent);">₺${fmt(tB)}</td><td style="color:var(--success);">₺${fmt(tA)}</td>
@@ -3671,7 +3696,7 @@ function renderCari(){
       ?'<span style="background:#dcfce7;color:#166534;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">Alacaklı</span>'
       :'<span style="background:var(--bg);color:var(--muted);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">Sıfır</span>';
     return `<tr>
-      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${x.m?x.m.ad:'-'}</b>
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay('${x.musteriId}')">${x.m?x.m.ad:'-'}</b>
         <div style="font-size:10px;color:var(--muted);">${x.kayitlar.length} işlem</div></td>
       <td style="color:var(--danger);font-weight:700;">₺${fmt(x.toplamBorc)}</td>
       <td style="color:var(--success);font-weight:700;">₺${fmt(x.toplamAlacak)}</td>
@@ -3830,7 +3855,7 @@ function renderTahsilat(){
     const ibanDisplay=t.iban?`<span style="font-size:10px;font-family:monospace;letter-spacing:.3px;">${t.iban}</span>`:'<span style="color:var(--muted);">-</span>';
     return `<tr>
       <td>${fmtD(t.tarih)}</td>
-      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay(this.dataset.mid)" data-mid="${m?m.id:''}">${m?m.ad:'-'}</b>${m&&m.iban&&!t.iban?`<br><span style="font-size:9px;color:var(--muted);">${m.iban}</span>`:''}
+      <td><b style="cursor:pointer;color:var(--info);" onclick="openMusteriDetay('${t.musteriId}')">${m?m.ad:'-'}</b>${m&&m.iban&&!t.iban?`<br><span style="font-size:9px;color:var(--muted);">${m.iban}</span>`:''}
       </td>
       <td>${t.polNo||'-'}</td><td>${t.sirket||'-'}</td><td>${t.plaka||'-'}</td>
       <td style="color:var(--accent);font-weight:700;">₺${fmt(t.borc)}</td>
@@ -4030,9 +4055,20 @@ function loadDocsForEdit(docs){
     }
   });
 }
+function docBtnClick(btn){
+  const pid = btn.getAttribute('data-pid');
+  const dtype = btn.getAttribute('data-dtype');
+  const action = btn.getAttribute('data-action');
+  if(!pid || !dtype){toast('Belge bilgisi eksik','error');return;}
+  if(action==='preview') previewDocFromPolice(pid, dtype);
+  else if(action==='download') downloadDocFromPolice(pid, dtype);
+}
+
 function openPoliceDocsModal(id){
   const p = getPolice(id);
-  if(!p || !p.docs){toast('Belge yok','error');return;}
+  if(!p){toast('Poliçe bulunamadı','error');return;}
+  const docs = p.docs || {};
+  if(!docs.ruhsat && !docs.tc && !docs.pdf){toast('Bu poliçeye ait belge yok','error');return;}
   const title = byId('modal-docs-title');
   const cont = byId('modal-docs-content');
   if(title) title.textContent = '📎 Belgeler - ' + p.polNo;
@@ -4045,7 +4081,7 @@ function openPoliceDocsModal(id){
     cont.innerHTML = '';
     let hasDoc = false;
     docTypes.forEach(function(dt){
-      const doc = p.docs[dt.key];
+      const doc = docs[dt.key];
       if(!doc) return;
       hasDoc = true;
       const div = document.createElement('div');
@@ -4114,32 +4150,44 @@ function closeDocsModal(){
 
 function previewDocFromPolice(policeId, type){
   const p = getPolice(policeId);
-  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadi','error');return;}
+  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadı','error');return;}
   const doc = p.docs[type];
-  if(doc.mime && doc.mime.startsWith('image/')){
-    const w = window.open('','_blank');
-    w.document.write('<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+doc.data+'" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
-  } else {
-    const byteStr = atob(doc.data.split(',')[1]);
-    const ab = new ArrayBuffer(byteStr.length);
-    const ia = new Uint8Array(ab);
-    for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
-    const blob = new Blob([ab],{type:'application/pdf'});
-    const url = URL.createObjectURL(blob);
-    window.open(url,'_blank');
-    setTimeout(()=>URL.revokeObjectURL(url),15000);
-  }
+  const data = doc.data;
+  if(!data){toast('Belge verisi boş','error');return;}
+  try{
+    if(doc.mime && doc.mime.startsWith('image/')){
+      const w = window.open('','_blank');
+      if(w) w.document.write('<html><head><title>'+doc.name+'</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+data+'" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
+    } else {
+      const parts = data.split(',');
+      const b64 = parts.length > 1 ? parts[1] : parts[0];
+      const byteStr = atob(b64);
+      const ab = new ArrayBuffer(byteStr.length);
+      const ia = new Uint8Array(ab);
+      for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
+      const mime = doc.mime || 'application/pdf';
+      const blob = new Blob([ab],{type:mime});
+      const url = URL.createObjectURL(blob);
+      window.open(url,'_blank');
+      setTimeout(()=>URL.revokeObjectURL(url),20000);
+    }
+  }catch(err){toast('Önizleme hatası: '+err.message,'error');}
 }
 
 function downloadDocFromPolice(policeId, type){
   const p = getPolice(policeId);
-  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadi','error');return;}
+  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadı','error');return;}
   const doc = p.docs[type];
-  const a = document.createElement('a');
-  a.href = doc.data;
-  a.download = doc.name;
-  a.click();
-  toast(doc.name + ' indiriliyor','success');
+  if(!doc.data){toast('Belge verisi boş','error');return;}
+  try{
+    const a = document.createElement('a');
+    a.href = doc.data;
+    a.download = doc.name || (type+'.pdf');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast(doc.name + ' indiriliyor','success');
+  }catch(err){toast('İndirme hatası: '+err.message,'error');}
 }
 
 function saveAcente(){
