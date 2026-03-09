@@ -4280,25 +4280,26 @@ function openAcenteDetay(id){
       <th>Komisyon İadesi</th>
       <th>Tahsilat Tarihi</th><th>Tahsilat Tutarı</th><th>Açıklama</th>
     </tr></thead><tbody>${atList.map(t=>{
-      // Poliçeyi bul: policeId varsa direkt, yoksa polNo ile eşleştir
+      // Poliçeyi bul: policeId → polNo → sirket+plaka sıralamasıyla
       const p=t.policeId?getPolice(t.policeId)
         :(t.polNo?DB.policeler.find(x=>x.acenteId===id&&x.polNo===t.polNo):null);
-      const m=p?getMusteri(p.musteriId):null;
+      // Müşteriyi bul: poliçeden veya direkt musteriId'den
+      const m=p?getMusteri(p.musteriId):(t.musteriId?getMusteri(t.musteriId):null);
       // Komisyon iadesi: bu acenteye ait iptallerden bu poliçeye bağlı acIade
       const acIadeToplam=DB.iptaller
-        .filter(ii=>ii.acenteId===id&&(p?ii.policeId===p.id:false))
+        .filter(ii=>(ii.acenteId===id||ii.iadAcenteId===id)&&(p?ii.policeId===p.id:t.policeId?ii.policeId===t.policeId:false))
         .reduce((s,ii)=>s+(ii.acIade||0),0);
-      const tip=t.tip==='iade'?'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--warning) 15%,transparent);color:var(--warning);">İade</span>'
+      const tipLabel=t.tip==='iade'?'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--warning) 15%,transparent);color:var(--warning);">İade</span>'
         :'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success);">Tahsilat</span>';
       return '<tr>'
-        +'<td>'+(p?p.sirket||'-':t.aciklama&&t.aciklama.includes('İptal')?'<i style="color:var(--warning);">İptal İadesi</i>':'-')+'</td>'
+        +'<td>'+(p?p.sirket||'-':t.sirket||'-')+'</td>'
         +'<td>'+(p?p.polTur||'-':'-')+'</td>'
         +'<td>'+(p?p.islemTur||'-':'-')+'</td>'
-        +'<td>'+(p?p.tc||(m?m.tc:'')||'-':m?m.tc||'-':'-')+'</td>'
+        +'<td>'+(p?(p.tc||(m?m.tc:'')||'-'):(m?m.tc||'-':'-'))+'</td>'
         +'<td>'+(p?p.vergino||'-':'-')+'</td>'
-        +'<td><b>'+(m?m.ad:t.musteriId?getMusteri(t.musteriId)?.ad||'-':'-')+'</b></td>'
+        +'<td><b>'+(m?m.ad:t.musteriId?(getMusteri(t.musteriId)||{ad:'-'}).ad:'-')+'</b></td>'
         +'<td>'+(p?p.mPolNo||p.polNo||'-':t.polNo||'-')+'</td>'
-        +'<td>'+(p?p.plaka||'-':'-')+'</td>'
+        +'<td>'+(p?p.plaka||'-':t.plaka||'-')+'</td>'
         +'<td>'+(p?p.ruhsat||'-':'-')+'</td>'
         +'<td>'+(p?fmtD(p.tanzim):'-')+'</td>'
         +'<td>'+(p?fmtD(p.baslama):'-')+'</td>'
@@ -4309,7 +4310,7 @@ function openAcenteDetay(id){
         +'<td style="color:var(--warning);font-weight:700;">'+(acIadeToplam>0?'₺'+fmt(acIadeToplam):'-')+'</td>'
         +'<td>'+fmtD(t.tarih)+'</td>'
         +'<td style="font-weight:700;color:'+(t.tip==='iade'?'var(--warning)':'var(--success)')+';">₺'+fmt(t.tutar)+'</td>'
-        +'<td style="max-width:140px;">'+tip+'<div style="font-size:10px;margin-top:2px;">'+(t.aciklama||'-')+'</div></td>'
+        +'<td style="max-width:140px;">'+tipLabel+'<div style="font-size:10px;margin-top:2px;">'+(t.aciklama||'-')+'</div></td>'
         +'</tr>';
     }).join('')}</tbody>
     <tfoot><tr style="font-weight:700;background:color-mix(in srgb,var(--primary) 8%,transparent);">
@@ -4589,9 +4590,14 @@ function saveIptal(){
   if(iadAcenteId&&(_iptalCalc.acIade||0)>0){
     const iadA=getAcente(iadAcenteId);
     DB.atList.push({id:uid(),acenteId:iadAcenteId,
+      policeId:pid,
+      polNo:p.polNo||'',
+      musteriId:mid,
+      sirket:p.sirket||'',
+      plaka:p.plaka||'',
       tarih:obj.iptaltarihi||new Date().toISOString().substr(0,10),
       tutar:_iptalCalc.acIade,
-      aciklama:'\u0130ptal Acente \u0130ade Alaca\u011f\u0131 \u2013 '+p.polNo+(iadA?' ('+iadA.ad+')':''),tip:'iade'});
+      aciklama:'İptal Acente İade Alacağı – '+p.polNo+(iadA?' ('+iadA.ad+')':''),tip:'iade'});
   }
   saveDB();renderIptal();toast('Poli\xe7e iptal edildi, cari ve iade kay\u0131tlar\u0131 olu\u015fturuldu','success');resetIptalForm();updateStats();
 }
