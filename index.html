@@ -4271,24 +4271,33 @@ function openAcenteDetay(id){
       <th>Tanzim</th><th>Başlama</th><th>Bitiş</th>
       <th>Net Tutar</th><th>Brüt Tutar</th><th>Ac.Komisyon</th>
     </tr></thead><tbody>${policeRows}</tbody></table></div>`:'<p style="color:var(--muted);font-size:12px;">Kayıt yok</p>'}
-    <div style="margin:12px 0 8px;font-weight:700;color:var(--primary);">💵 Tahsilat Kayıtları</div>
+    <div style="margin:12px 0 8px;font-weight:700;color:var(--primary);">💵 Tahsilat Kayıtları (${atList.length})</div>
     ${atList.length?`<div class="table-wrap"><table><thead><tr>
       <th>Şirket</th><th>Poliçe Türü</th><th>İşlem Türü</th><th>TC</th><th>Vergi No</th>
-      <th>Müşteri Pol.No</th><th>Plaka</th><th>Belge Seri</th>
+      <th>Müşteri</th><th>Pol.No</th><th>Plaka</th><th>Belge Seri</th>
       <th>Tanzim</th><th>Başlama</th><th>Bitiş</th>
       <th>Net Tutar</th><th>Brüt Tutar</th><th>Ac.Komisyon</th>
+      <th>Komisyon İadesi</th>
       <th>Tahsilat Tarihi</th><th>Tahsilat Tutarı</th><th>Açıklama</th>
     </tr></thead><tbody>${atList.map(t=>{
-      // Eşleşen poliçeyi bul: policeId varsa direkt, yoksa aynı acentenin son poliçesi
-      const p=t.policeId?getPolice(t.policeId):null;
+      // Poliçeyi bul: policeId varsa direkt, yoksa polNo ile eşleştir
+      const p=t.policeId?getPolice(t.policeId)
+        :(t.polNo?DB.policeler.find(x=>x.acenteId===id&&x.polNo===t.polNo):null);
       const m=p?getMusteri(p.musteriId):null;
+      // Komisyon iadesi: bu acenteye ait iptallerden bu poliçeye bağlı acIade
+      const acIadeToplam=DB.iptaller
+        .filter(ii=>ii.acenteId===id&&(p?ii.policeId===p.id:false))
+        .reduce((s,ii)=>s+(ii.acIade||0),0);
+      const tip=t.tip==='iade'?'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--warning) 15%,transparent);color:var(--warning);">İade</span>'
+        :'<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success);">Tahsilat</span>';
       return '<tr>'
-        +'<td>'+(p?p.sirket||'-':'-')+'</td>'
+        +'<td>'+(p?p.sirket||'-':t.aciklama&&t.aciklama.includes('İptal')?'<i style="color:var(--warning);">İptal İadesi</i>':'-')+'</td>'
         +'<td>'+(p?p.polTur||'-':'-')+'</td>'
         +'<td>'+(p?p.islemTur||'-':'-')+'</td>'
-        +'<td>'+(p?p.tc||(m?m.tc:'')||'-':'-')+'</td>'
+        +'<td>'+(p?p.tc||(m?m.tc:'')||'-':m?m.tc||'-':'-')+'</td>'
         +'<td>'+(p?p.vergino||'-':'-')+'</td>'
-        +'<td>'+(p?p.mPolNo||p.polNo||'-':'-')+'</td>'
+        +'<td><b>'+(m?m.ad:t.musteriId?getMusteri(t.musteriId)?.ad||'-':'-')+'</b></td>'
+        +'<td>'+(p?p.mPolNo||p.polNo||'-':t.polNo||'-')+'</td>'
         +'<td>'+(p?p.plaka||'-':'-')+'</td>'
         +'<td>'+(p?p.ruhsat||'-':'-')+'</td>'
         +'<td>'+(p?fmtD(p.tanzim):'-')+'</td>'
@@ -4296,12 +4305,22 @@ function openAcenteDetay(id){
         +'<td>'+(p?fmtD(p.bitis):'-')+'</td>'
         +'<td>'+(p?'₺'+fmt(p.net):'-')+'</td>'
         +'<td>'+(p?'₺'+fmt(p.brut):'-')+'</td>'
-        +'<td>'+(p?'₺'+fmt(p.ackomisyon):'-')+'</td>'
+        +'<td style="color:var(--accent);font-weight:700;">'+(p?'₺'+fmt(p.ackomisyon):'-')+'</td>'
+        +'<td style="color:var(--warning);font-weight:700;">'+(acIadeToplam>0?'₺'+fmt(acIadeToplam):'-')+'</td>'
         +'<td>'+fmtD(t.tarih)+'</td>'
-        +'<td style="font-weight:700;color:var(--success);">₺'+fmt(t.tutar)+'</td>'
-        +'<td>'+(t.aciklama||'-')+'</td>'
+        +'<td style="font-weight:700;color:'+(t.tip==='iade'?'var(--warning)':'var(--success)')+';">₺'+fmt(t.tutar)+'</td>'
+        +'<td style="max-width:140px;">'+tip+'<div style="font-size:10px;margin-top:2px;">'+(t.aciklama||'-')+'</div></td>'
         +'</tr>';
-    }).join('')}</tbody></table></div>`:'<p style="color:var(--muted);font-size:12px;">Tahsilat yok</p>'}
+    }).join('')}</tbody>
+    <tfoot><tr style="font-weight:700;background:color-mix(in srgb,var(--primary) 8%,transparent);">
+      <td colspan="14" style="text-align:right;">TOPLAM:</td>
+      <td style="color:var(--accent);">₺${fmt(ps.reduce((s,p)=>s+(p.ackomisyon||0),0))}</td>
+      <td style="color:var(--warning);">₺${fmt(DB.iptaller.filter(ii=>ii.acenteId===id).reduce((s,ii)=>s+(ii.acIade||0),0))}</td>
+      <td></td>
+      <td style="color:var(--success);">₺${fmt(atList.filter(t=>t.tip!=='iade').reduce((s,t)=>s+(t.tutar||0),0))}</td>
+      <td></td>
+    </tr></tfoot>
+    </table></div>`:'<p style="color:var(--muted);font-size:12px;">Tahsilat yok</p>'}
   `;
   openFP('🏢 Acente Detay – '+a.ad,html,`<button class="btn btn-outline btn-sm" onclick='window.print()'>🖨️ Yazdır</button>`);
 }
