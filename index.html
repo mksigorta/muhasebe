@@ -1191,6 +1191,46 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       </div>
 
       <div class="fg" style="grid-column:1/-1"><label>Açıklama</label><textarea id="pe-aciklama" placeholder="Açıklama..."></textarea></div>
+
+      <!-- DOSYA YÜKLEME ALANI -->
+      <div style="grid-column:1/-1;">
+        <div style="background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius);padding:16px;">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:.4px;text-transform:uppercase;">📎 Belgeler <span style="font-weight:400;font-style:italic;">(İsteğe Bağlı)</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+            <div class="doc-upload-box" id="dbox-ruhsat">
+              <div class="doc-upload-label">📋 Ruhsat / Belge Seri</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-ruhsat').click()" id="dzone-ruhsat">
+                <span class="doc-upload-icon">📄</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-ruhsat" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('ruhsat',this)">
+              <div class="doc-preview" id="dpreview-ruhsat" style="display:none;"></div>
+            </div>
+            <div class="doc-upload-box" id="dbox-tc">
+              <div class="doc-upload-label">🪪 TC Kimlik Belgesi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-tc').click()" id="dzone-tc">
+                <span class="doc-upload-icon">🪪</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-tc" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('tc',this)">
+              <div class="doc-preview" id="dpreview-tc" style="display:none;"></div>
+            </div>
+            <div class="doc-upload-box" id="dbox-pdf">
+              <div class="doc-upload-label">📑 Poliçe / Sözleşme PDF</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-pdf').click()" id="dzone-pdf">
+                <span class="doc-upload-icon">📑</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-pdf" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('pdf',this)">
+              <div class="doc-preview" id="dpreview-pdf" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="btn-group">
       <button class="btn btn-success" onclick="savePolice()">💾 Kaydet</button>
@@ -1222,7 +1262,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
     <div class="table-wrap">
       <table id="tbl-pl">
-        <thead><tr><th>Müşteri</th><th>Tanzim</th><th>Başlama</th><th>Bitiş</th><th>Poliçe No</th><th>Plaka</th><th>Ruhsat No</th><th>Acente</th><th>Oran%</th><th>Ac.Komisyon</th><th>Net</th><th>Brüt</th><th>Durum</th><th>Ödeme Tipi</th><th>Açıklama</th><th>İşlem</th></tr></thead>
+        <thead><tr><th>Müşteri</th><th>Tanzim</th><th>Başlama</th><th>Bitiş</th><th>Poliçe No</th><th>Plaka</th><th>Ruhsat No</th><th>Acente</th><th>Oran%</th><th>Ac.Komisyon</th><th>Net</th><th>Brüt</th><th>Durum</th><th>Ödeme Tipi</th><th>İşlem</th></tr></thead>
         <tbody id="tbody-pl"></tbody>
       </table>
     </div>
@@ -1493,7 +1533,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     <div class="card-header"><div class="card-title">📋 Acente Listesi</div></div>
     <div class="table-wrap">
       <table id="tbl-acente">
-        <thead><tr><th>Acente</th><th>Telefon</th><th>Açıklama</th><th>Borç</th><th>Alacak</th><th>Kalan</th><th>İşlem</th></tr></thead>
+        <thead><tr><th>Acente</th><th>Telefon</th><th>Açıklama</th><th>Müşteri</th><th>Borç</th><th>Alacak</th><th>Kalan</th><th>İşlem</th></tr></thead>
         <tbody id="tbody-acente"></tbody>
       </table>
     </div>
@@ -2177,6 +2217,18 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 </div><!-- /main -->
 
 <!-- MODAL: MÜŞTERİ EKLE/DÜZENLE -->
+
+<!-- BELGE ÖNIZLEME MODAL -->
+<div id="modal-docs" onclick="if(event.target===this)closeDocsModal()">
+  <div class="docs-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="docs-modal-title" id="modal-docs-title">📎 Poliçe Belgeleri</div>
+      <button onclick="closeDocsModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div id="modal-docs-content"></div>
+  </div>
+</div>
+
 <div id="modal-musteri" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:center;justify-content:center;padding:16px;">
   <div style="background:#fff;border-radius:13px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;">
@@ -3154,7 +3206,8 @@ function savePolice(){
     tc:gv('pe-tc')||(m?m.tc:''),vergino:gv('pe-vergino'),
     plaka:gv('pe-plaka'),ruhsat:gv('pe-ruhsat'),
     acenteId,oran,net,brut,ackomisyon,odemeDurum,odemeTip,
-    aciklama:gv('pe-aciklama')
+    aciklama:gv('pe-aciklama'),
+    docs:{ruhsat:_peDocsTemp.ruhsat?{..._peDocsTemp.ruhsat}:null,tc:_peDocsTemp.tc?{..._peDocsTemp.tc}:null,pdf:_peDocsTemp.pdf?{..._peDocsTemp.pdf}:null}
   };
 
   if(eid){
@@ -3228,7 +3281,7 @@ function renderPoliceListesi(){
     return true;
   });
   const tb=byId('tbody-pl');
-  if(!list.length){tb.innerHTML='<tr><td colspan="16" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
+  if(!list.length){tb.innerHTML='<tr><td colspan="15" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
   tb.innerHTML=list.map(p=>{
     const m=getMusteri(p.musteriId);const a=getAcente(p.acenteId);
     return `<tr>
@@ -3236,11 +3289,13 @@ function renderPoliceListesi(){
       <td>${p.polNo}</td><td>${p.plaka||'-'}</td><td>${p.ruhsat||'-'}</td><td>${a?a.ad:'-'}</td>
       <td>${p.oran||0}%</td><td>₺${fmt(p.ackomisyon)}</td><td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
       <td><span class="badge ${p.odemeDurum==='odendi'?'badge-success':p.odemeDurum==='taksitli'?'badge-info':'badge-danger'}">${p.odemeDurum==='odendi'?'Ödendi':p.odemeDurum==='taksitli'?'💰 Taksitli':'Ödenmedi'}</span></td>
-      <td>${p.odemeTip||'-'}</td><td>${p.aciklama||'-'}</td>
-      <td style="display:flex;gap:3px;">
+      <td>${p.odemeTip||'-'}</td>
+      <td style="display:flex;gap:3px;flex-wrap:nowrap;white-space:nowrap;">
         <button class="btn btn-primary btn-xs" onclick='editPolice("${p.id}")'>✏️</button>
         <button class="btn btn-danger btn-xs" onclick='delPolice("${p.id}")'>🗑️</button>
         <button class="btn btn-success btn-xs" onclick='detayPolice("${p.id}")'>👁️</button>
+        ${p.aciklama?`<button class="btn btn-warning btn-xs" onclick='showAciklamaPopup(this,"${p.id}")' title="Açıklama">💬</button>`:''}
+        ${(p.docs&&(p.docs.ruhsat||p.docs.tc||p.docs.pdf))?`<button class="btn btn-info btn-xs" onclick='openPoliceDocsModal("${p.id}")' title="Belgeler">📎</button>`:''}
       </td>
     </tr>`;
   }).join('');
@@ -3822,6 +3877,218 @@ function printTahsilat(){
 // ==============================
 // ACENTE
 // ==============================
+
+// ══════════════════════════════════════════
+// DOC UPLOAD - Belge Yükleme Fonksiyonları
+// ══════════════════════════════════════════
+const _peDocsTemp = {ruhsat:null, tc:null, pdf:null};
+
+function handleDocUpload(type, input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024){toast('Dosya 5 MBdan buyuk olamaz!','error');input.value='';return;}
+  const reader = new FileReader();
+  reader.onload = function(e){
+    _peDocsTemp[type] = {name: file.name, data: e.target.result, mime: file.type};
+    const zone = byId('dzone-'+type);
+    const preview = byId('dpreview-'+type);
+    if(zone){ zone.classList.add('has-file'); zone.querySelector('.doc-upload-text').textContent = '\u2705 ' + file.name; }
+    if(preview){
+      preview.style.display='block';
+      const isImg = file.type.startsWith('image/');
+      const imgHtml = isImg ? '<img src="'+e.target.result+'" style="max-width:100%;max-height:120px;border-radius:4px;margin-top:6px;">' : '<div style="font-size:10px;color:var(--muted);margin-top:4px;">PDF Dosyasi</div>';
+      preview.innerHTML = '<div class="doc-preview-name">\uD83D\uDCCE '+file.name+'</div>'+imgHtml+'<div class="doc-preview-actions" id="dpa-'+type+'"></div>';
+      const dpa = byId('dpa-'+type);
+      if(dpa){
+        const b1=document.createElement('button');b1.className='btn btn-outline btn-xs';b1.textContent='\uD83D\uDC41\uFE0F Goruntule';b1.onclick=function(){previewDoc(type);};
+        const b2=document.createElement('button');b2.className='btn btn-danger btn-xs';b2.textContent='\uD83D\uDDD1\uFE0F Kaldir';b2.onclick=function(){removeDoc(type);};
+        dpa.appendChild(b1);dpa.appendChild(b2);
+      }
+    }
+    toast(file.name + ' yuklendi','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewDoc(type){
+  const doc = _peDocsTemp[type];
+  if(!doc){toast('Belge bulunamadi','error');return;}
+  if(doc.mime && doc.mime.startsWith('image/')){
+    const w = window.open('','_blank');
+    w.document.write('<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+doc.data+'" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
+  } else {
+    const byteStr = atob(doc.data.split(',')[1]);
+    const ab = new ArrayBuffer(byteStr.length);
+    const ia = new Uint8Array(ab);
+    for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
+    const blob = new Blob([ab],{type:'application/pdf'});
+    const url = URL.createObjectURL(blob);
+    window.open(url,'_blank');
+    setTimeout(()=>URL.revokeObjectURL(url),15000);
+  }
+}
+
+function removeDoc(type){
+  _peDocsTemp[type] = null;
+  const zone = byId('dzone-'+type);
+  const preview = byId('dpreview-'+type);
+  const input = byId('pe-file-'+type);
+  if(zone){ zone.classList.remove('has-file'); zone.querySelector('.doc-upload-text').textContent = 'Dosya secmek icin tiklayin'; }
+  if(preview){ preview.style.display='none'; preview.innerHTML=''; }
+  if(input) input.value = '';
+  toast('Belge kaldirildi','error');
+}
+
+function clearAllDocs(){
+  ['ruhsat','tc','pdf'].forEach(t => {
+    _peDocsTemp[t] = null;
+    const zone = byId('dzone-'+t);
+    const preview = byId('dpreview-'+t);
+    const input = byId('pe-file-'+t);
+    if(zone){ zone.classList.remove('has-file'); const txt = zone.querySelector('.doc-upload-text'); if(txt) txt.textContent = 'Dosya secmek icin tiklayin'; }
+    if(preview){ preview.style.display='none'; preview.innerHTML=''; }
+    if(input) input.value = '';
+  });
+}
+
+function loadDocsForEdit(docs){
+  clearAllDocs();
+  if(!docs) return;
+  ['ruhsat','tc','pdf'].forEach(function(t){
+    if(docs[t]){
+      _peDocsTemp[t] = docs[t];
+      const zone = byId('dzone-'+t);
+      const preview = byId('dpreview-'+t);
+      if(zone){ zone.classList.add('has-file'); const txt = zone.querySelector('.doc-upload-text'); if(txt) txt.textContent = '\u2705 ' + docs[t].name; }
+      if(preview){
+        preview.style.display='block';
+        const isImg = docs[t].mime && docs[t].mime.startsWith('image/');
+        const imgH = isImg ? '<img src="'+docs[t].data+'" style="max-width:100%;max-height:100px;border-radius:4px;margin-top:4px;">' : '<div style="font-size:10px;color:var(--muted);margin-top:4px;">PDF</div>';
+        preview.innerHTML = '<div>\uD83D\uDCCE '+docs[t].name+'</div>'+imgH+'<div id="dpa2-'+t+'"></div>';
+        (function(tt){
+          const dpa2 = byId('dpa2-'+tt);
+          if(dpa2){
+            const b1=document.createElement('button');b1.className='btn btn-outline btn-xs';b1.textContent='\uD83D\uDC41\uFE0F';b1.onclick=function(){previewDoc(tt);};
+            const b2=document.createElement('button');b2.className='btn btn-danger btn-xs';b2.textContent='\uD83D\uDDD1\uFE0F';b2.onclick=function(){removeDoc(tt);};
+            dpa2.appendChild(b1);dpa2.appendChild(b2);
+          }
+        })(t);
+      }
+    }
+  });
+}
+function openPoliceDocsModal(id){
+  const p = getPolice(id);
+  if(!p || !p.docs){toast('Belge yok','error');return;}
+  const title = byId('modal-docs-title');
+  const cont = byId('modal-docs-content');
+  if(title) title.textContent = '📎 Belgeler - ' + p.polNo;
+  const docTypes = [
+    {key:'ruhsat',label:'Ruhsat / Belge Seri',icon:'📋'},
+    {key:'tc',label:'TC Kimlik Belgesi',icon:'🪪'},
+    {key:'pdf',label:'Police / Sozlesme PDF',icon:'📑'}
+  ];
+  if(cont){
+    cont.innerHTML = '';
+    let hasDoc = false;
+    docTypes.forEach(function(dt){
+      const doc = p.docs[dt.key];
+      if(!doc) return;
+      hasDoc = true;
+      const div = document.createElement('div');
+      div.className = 'doc-item';
+      div.innerHTML = '<div class="doc-item-icon">'+dt.icon+'</div>'
+        +'<div class="doc-item-info"><div class="doc-item-name">'+doc.name+'</div><div class="doc-item-type">'+dt.label+'</div></div>'
+        +'<div class="doc-item-actions" id="dia-'+id+'-'+dt.key+'"></div>';
+      cont.appendChild(div);
+      (function(did, dkey){
+        const acts = byId('dia-'+did+'-'+dkey);
+        if(acts){
+          const b1=document.createElement('button');b1.className='btn btn-info btn-xs';b1.textContent='👁️';b1.onclick=function(){previewDocFromPolice(did,dkey);};
+          const b2=document.createElement('button');b2.className='btn btn-success btn-xs';b2.textContent='⬇️';b2.onclick=function(){downloadDocFromPolice(did,dkey);};
+          acts.appendChild(b1);acts.appendChild(b2);
+        }
+      })(id, dt.key);
+    });
+    if(!hasDoc) cont.innerHTML = '<p style="color:var(--muted);font-size:12px;">Kayitli belge yok.</p>';
+  }
+  const modal = byId('modal-docs');
+  if(modal) modal.style.display='flex';
+}
+function showAciklamaPopup(btn, policeId){
+  const old = document.getElementById('aciklama-popup');
+  if(old){ old.remove(); if(old._policeId===policeId) return; }
+  const p = getPolice(policeId);
+  if(!p || !p.aciklama) return;
+  const popup = document.createElement('div');
+  popup.className = 'aciklama-popup';
+  popup.id = 'aciklama-popup';
+  popup._policeId = policeId;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'aciklama-popup-close';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = function(){ popup.remove(); };
+  const title = document.createElement('div');
+  title.className = 'aciklama-popup-title';
+  title.textContent = '💬 Açıklama';
+  const body = document.createElement('div');
+  body.textContent = p.aciklama || '';
+  popup.appendChild(closeBtn);
+  popup.appendChild(title);
+  popup.appendChild(body);
+  document.body.appendChild(popup);
+  const rect = btn.getBoundingClientRect();
+  let left = rect.left;
+  if(left + 300 > window.innerWidth - 10) left = window.innerWidth - 310;
+  let top = rect.bottom + 6;
+  if(top + 120 > window.innerHeight) top = rect.top - 130;
+  popup.style.left = Math.max(10,left) + 'px';
+  popup.style.top = Math.max(10,top) + 'px';
+  setTimeout(function(){
+    document.addEventListener('click', function handler(e){
+      if(!popup.contains(e.target) && e.target !== btn){
+        if(document.getElementById('aciklama-popup')) popup.remove();
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 10);
+}
+
+function closeDocsModal(){
+  const modal = byId('modal-docs');
+  if(modal) modal.style.display='none';
+}
+
+function previewDocFromPolice(policeId, type){
+  const p = getPolice(policeId);
+  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadi','error');return;}
+  const doc = p.docs[type];
+  if(doc.mime && doc.mime.startsWith('image/')){
+    const w = window.open('','_blank');
+    w.document.write('<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+doc.data+'" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
+  } else {
+    const byteStr = atob(doc.data.split(',')[1]);
+    const ab = new ArrayBuffer(byteStr.length);
+    const ia = new Uint8Array(ab);
+    for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
+    const blob = new Blob([ab],{type:'application/pdf'});
+    const url = URL.createObjectURL(blob);
+    window.open(url,'_blank');
+    setTimeout(()=>URL.revokeObjectURL(url),15000);
+  }
+}
+
+function downloadDocFromPolice(policeId, type){
+  const p = getPolice(policeId);
+  if(!p || !p.docs || !p.docs[type]){toast('Belge bulunamadi','error');return;}
+  const doc = p.docs[type];
+  const a = document.createElement('a');
+  a.href = doc.data;
+  a.download = doc.name;
+  a.click();
+  toast(doc.name + ' indiriliyor','success');
+}
+
 function saveAcente(){
   const ad=gv('ac-ad').trim();if(!ad){toast('Acente adı zorunludur!','error');return;}
   DB.acenteler.push({id:uid(),ad,tel:gv('ac-tel'),aciklama:gv('ac-aciklama')});
@@ -3831,14 +4098,16 @@ function saveAcente(){
 function resetAcenteForm(){['ac-ad','ac-tel','ac-aciklama'].forEach(id=>sv(id,''));}
 function renderAcente(){
   const tb=byId('tbody-acente');
-  if(!DB.acenteler.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
+  if(!DB.acenteler.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
   tb.innerHTML=DB.acenteler.map(a=>{
     const ps=DB.policeler.filter(p=>p.acenteId===a.id);
     const topK=ps.reduce((s,p)=>s+(p.ackomisyon||0),0);
     const topA=DB.atList.filter(t=>t.acenteId===a.id).reduce((s,t)=>s+(t.tutar||0),0);
+    const musteriSayisi=new Set(ps.map(p=>p.musteriId).filter(Boolean)).size;
     return `<tr>
       <td><b style="cursor:pointer;color:var(--info);" onclick='openAcenteDetay("${a.id}")'>${a.ad}</b></td>
       <td>${a.tel||'-'}</td><td>${a.aciklama||'-'}</td>
+      <td><span style="font-weight:700;color:var(--info);">${musteriSayisi}</span><span style="font-size:10px;color:var(--muted);margin-left:3px;">kişi</span></td>
       <td style="color:var(--accent);">₺${fmt(topK)}</td>
       <td style="color:var(--success);">₺${fmt(topA)}</td>
       <td style="font-weight:700;">₺${fmt(topK-topA)}</td>
@@ -3869,6 +4138,7 @@ function openAcenteDetay(id){
     return `<tr>
       <td>${p.sirket||'-'}</td><td>${p.polTur||'-'}</td><td>${p.islemTur||'-'}</td>
       <td>${p.tc||(m?m.tc:'')||'-'}</td><td>${p.vergino||'-'}</td>
+      <td>${m?m.ad:'-'}</td>
       <td>${p.mPolNo||p.polNo||'-'}</td><td>${p.plaka||'-'}</td><td>${p.ruhsat||'-'}</td>
       <td>${fmtD(p.tanzim)}</td><td>${fmtD(p.baslama)}</td><td>${fmtD(p.bitis)}</td>
       <td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td><td>₺${fmt(p.ackomisyon)}</td>
@@ -3887,7 +4157,7 @@ function openAcenteDetay(id){
     <div style="margin-bottom:8px;font-weight:700;color:var(--primary);">📋 Bağlı Poliçeler (${ps.length})</div>
     ${ps.length?`<div class="table-wrap"><table><thead><tr>
       <th>Şirket</th><th>Poliçe Türü</th><th>İşlem Türü</th><th>TC</th><th>Vergi No</th>
-      <th>Müşteri Pol.No</th><th>Plaka</th><th>Belge Seri</th>
+      <th>Müşteri</th><th>Pol.No</th><th>Plaka</th><th>Belge Seri</th>
       <th>Tanzim</th><th>Başlama</th><th>Bitiş</th>
       <th>Net Tutar</th><th>Brüt Tutar</th><th>Ac.Komisyon</th>
     </tr></thead><tbody>${policeRows}</tbody></table></div>`:'<p style="color:var(--muted);font-size:12px;">Kayıt yok</p>'}
