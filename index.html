@@ -759,6 +759,18 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 .ft-item-label{font-size:8px;font-weight:700;padding:2px 3px;background:var(--bg);text-align:center;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ft-item .ft-check{position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--primary);font-size:6px;color:#fff;display:flex;align-items:center;justify-content:center;}
 @media(max-width:600px){#floating-theme{bottom:14px;right:14px;}}
+
+/* ── Detay Aksiyon Butonları – Renkli Etiketli ── */
+.btn-act{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .1s;line-height:1.2;}
+.btn-act:hover{opacity:.85;transform:translateY(-1px);}
+.btn-act:active{transform:translateY(0);}
+.btn-act-primary{background:var(--primary);color:#fff;}
+.btn-act-success{background:var(--success);color:#fff;}
+.btn-act-danger{background:transparent;color:var(--danger);border:1.5px solid var(--danger);}
+.btn-act-info{background:var(--info);color:#fff;}
+.btn-act-warning{background:var(--warning);color:#fff;}
+.btn-act-wa{background:#25d366;color:#fff;}
+.btn-act-accent{background:var(--accent);color:#fff;}
 </style>
 </head>
 <body>
@@ -820,13 +832,16 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     <a onclick="showPage('cari')" id="nav-cari"><span class="ico">💰</span>Cari</a>
     <a onclick="showPage('tahsilat')" id="nav-tahsilat"><span class="ico">💳</span>Tahsilat</a>
     <a onclick="showPage('kasa')" id="nav-kasa"><span class="ico">🏦</span>MKöçe Kasa</a>
+    <a onclick="showPage('kasa-pol')" id="nav-kasa-pol" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">📋</span>Acente Komisyon</a>
+    <a onclick="showPage('kasa-ipt')" id="nav-kasa-ipt" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🔄</span>MKöçe İptal Kazanç</a>
+    <a onclick="showPage('kasa-acb')" id="nav-kasa-acb" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🏢</span>Acente Bana Kalan</a>
+    <a onclick="showPage('kasa-gen')" id="nav-kasa-gen" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🏆</span>Toplam Kazanç</a>
     <a onclick="showPage('acente')" id="nav-acente"><span class="ico">🏢</span>Acente</a>
     <div class="nav-sec">İşlemler</div>
     <a onclick="showPage('iptal-iade')" id="nav-iptal-iade"><span class="ico">🔄</span>İptal &amp; İadeler</a>
     <a onclick="showPage('not-defteri')" id="nav-not-defteri"><span class="ico">📝</span>Not Defteri</a>
     <a onclick="showPage('whatsapp')" id="nav-whatsapp"><span class="ico">💬</span>WhatsApp</a>
     <div class="nav-sec">Analizler ✨</div>
-    <a onclick="showPage('gelir-grafigi')" id="nav-gelir-grafigi"><span class="ico">📊</span>Gelir Grafiği</a>
     <a onclick="showPage('dogum-gunleri')" id="nav-dogum-gunleri"><span class="ico">🎂</span>Doğum Günleri</a>
     <a onclick="showPage('taksit-plani')" id="nav-taksit-plani"><span class="ico">💰</span>Taksit Planı</a>
     <a onclick="showPage('yenileme-uyarisi')" id="nav-yenileme-uyarisi"><span class="ico">🔔</span>Yenileme Uyarısı</a>
@@ -846,6 +861,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   <div style="display:flex;align-items:center;gap:8px;">
     <button id="hamburger" onclick="toggleSidebar()">☰</button>
     <div class="page-title" id="pageTitle">Ana Sayfa</div>
+    <button id="veri-yonetimi-shortcut" onclick="showPage('ayarlar');setTimeout(()=>showAyarlarTab('veri'),100)" style="display:none;align-items:center;gap:5px;padding:5px 12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:opacity .15s;">🗄️ Veri Yönetimi</button>
   </div>
   <div class="topbar-right">
     <div class="dt-box">
@@ -976,56 +992,6 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
   </div>
 </div>
-
-<!-- GELİR GRAFİĞİ -->
-<div id="page-gelir-grafigi" class="page">
-  <div class="card" style="margin-bottom:14px;">
-    <div class="card-header">
-      <div class="card-title">📊 Aylık Gelir Grafiği <span style="display:inline-flex;align-items:center;gap:4px;background:#ede9fe;color:#7c3aed;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;">✨ Yeni</span></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:120px;background:var(--bg);border-radius:10px;padding:12px 14px;border:1px solid var(--border);">
-        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Bu Ay Kazanç</div>
-        <div id="gg-buay" style="font-family:'Space Grotesk';font-size:22px;font-weight:700;margin-top:2px;">₺0</div>
-        <div id="gg-buay-sub" style="font-size:10px;color:var(--muted);margin-top:1px;">—</div>
-      </div>
-      <div style="flex:1;min-width:120px;background:var(--bg);border-radius:10px;padding:12px 14px;border:1px solid var(--border);">
-        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Bu Yıl Toplam</div>
-        <div id="gg-yil" style="font-family:'Space Grotesk';font-size:22px;font-weight:700;margin-top:2px;">₺0</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:1px;">Tüm zamanlar</div>
-      </div>
-      <div style="flex:1;min-width:120px;background:var(--bg);border-radius:10px;padding:12px 14px;border:1px solid var(--border);">
-        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">En İyi Ay</div>
-        <div id="gg-eniyi" style="font-family:'Space Grotesk';font-size:22px;font-weight:700;margin-top:2px;">—</div>
-        <div id="gg-eniyi-sub" style="font-size:10px;color:var(--muted);margin-top:1px;">—</div>
-      </div>
-      <div style="flex:1;min-width:120px;background:var(--bg);border-radius:10px;padding:12px 14px;border:1px solid var(--border);">
-        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Ort. Aylık</div>
-        <div id="gg-ortalama" style="font-family:'Space Grotesk';font-size:22px;font-weight:700;margin-top:2px;">₺0</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:1px;">Son 12 ay</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="card">
-        <div class="card-header"><div class="card-title">📈 Aylık Tahsilat Geliri</div></div>
-        <div id="gg-bar-chart" style="position:relative;height:180px;display:flex;align-items:flex-end;gap:4px;padding:0 4px 0 36px;"></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">🥧 Poliçe Türü Dağılımı</div></div>
-        <div style="display:flex;align-items:center;gap:16px;">
-          <svg id="gg-pie" width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0;"></svg>
-          <div id="gg-pie-legend" style="display:flex;flex-direction:column;gap:7px;flex:1;font-size:11px;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:14px;">
-      <div class="card-header"><div class="card-title">📅 Son 6 Ay Karşılaştırma</div></div>
-      <div id="gg-compare" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- DOĞUM GÜNLERİ -->
 <div id="page-dogum-gunleri" class="page">
   <div class="card">
     <div class="card-header">
@@ -2874,6 +2840,146 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 
 </div><!-- /page-kasa -->
 
+
+<!-- KASA POLİÇE KOMİSYON SAYFASI -->
+<div id="page-kasa-pol" class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 Poliçelerden Gelen Kazanç — Acente Komisyon</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div id="kalt-pol-toplam" style="font-size:13px;font-weight:800;color:var(--success);"></div>
+        <button class="btn btn-outline btn-sm" onclick="kaltPrint('pol')">🖨️ Yazdır</button>
+        <button class="btn btn-info btn-sm" onclick="kaltExcel('pol')">📊 Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="showPage('kasa')">← Kasaya Dön</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 0 0;">
+      <select id="kalt-pol-yil" onchange="renderKasaAlt('pol')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;"></select>
+      <select id="kalt-pol-ay" onchange="renderKasaAlt('pol')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;">
+        <option value="">Tüm Aylar</option>
+        <option value="01">Ocak</option><option value="02">Şubat</option><option value="03">Mart</option>
+        <option value="04">Nisan</option><option value="05">Mayıs</option><option value="06">Haziran</option>
+        <option value="07">Temmuz</option><option value="08">Ağustos</option><option value="09">Eylül</option>
+        <option value="10">Ekim</option><option value="11">Kasım</option><option value="12">Aralık</option>
+      </select>
+      <input type="text" id="kalt-pol-musteri" placeholder="🔍 Müşteri" oninput="renderKasaAlt('pol')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:140px;">
+      <input type="text" id="kalt-pol-polno" placeholder="Poliçe No" oninput="renderKasaAlt('pol')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:120px;">
+      <button class="btn btn-outline btn-sm" onclick="kaltFiltreTemizle('pol')">✖ Temizle</button>
+    </div>
+    <div class="table-wrap">
+      <table id="kalt-pol-table">
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>Plaka</th><th>Tanzim</th><th>Brüt</th><th>Net</th><th>Acente Kom.</th><th>Belgeler</th></tr></thead>
+        <tbody id="kalt-pol-tbody"></tbody>
+        <tfoot><tr id="kalt-pol-foot" style="font-weight:700;background:color-mix(in srgb,var(--success) 8%,transparent);"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- KASA İPTAL MKöçe KAZANÇ SAYFASI -->
+<div id="page-kasa-ipt" class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🔄 İptalden Gelen MKöçe Kazanç</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div id="kalt-ipt-toplam" style="font-size:13px;font-weight:800;color:var(--accent);"></div>
+        <button class="btn btn-outline btn-sm" onclick="kaltPrint('ipt')">🖨️ Yazdır</button>
+        <button class="btn btn-info btn-sm" onclick="kaltExcel('ipt')">📊 Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="showPage('kasa')">← Kasaya Dön</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 0 0;">
+      <select id="kalt-ipt-yil" onchange="renderKasaAlt('ipt')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;"></select>
+      <select id="kalt-ipt-ay" onchange="renderKasaAlt('ipt')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;">
+        <option value="">Tüm Aylar</option>
+        <option value="01">Ocak</option><option value="02">Şubat</option><option value="03">Mart</option>
+        <option value="04">Nisan</option><option value="05">Mayıs</option><option value="06">Haziran</option>
+        <option value="07">Temmuz</option><option value="08">Ağustos</option><option value="09">Eylül</option>
+        <option value="10">Ekim</option><option value="11">Kasım</option><option value="12">Aralık</option>
+      </select>
+      <input type="text" id="kalt-ipt-musteri" placeholder="🔍 Müşteri" oninput="renderKasaAlt('ipt')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:140px;">
+      <input type="text" id="kalt-ipt-polno" placeholder="Poliçe No" oninput="renderKasaAlt('ipt')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:120px;">
+      <button class="btn btn-outline btn-sm" onclick="kaltFiltreTemizle('ipt')">✖ Temizle</button>
+    </div>
+    <div class="table-wrap">
+      <table id="kalt-ipt-table">
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>Brüt</th><th>MK İade</th><th>Kazanç</th><th>MKöçe Kazanç</th><th>Belgeler</th></tr></thead>
+        <tbody id="kalt-ipt-tbody"></tbody>
+        <tfoot><tr id="kalt-ipt-foot" style="font-weight:700;background:color-mix(in srgb,var(--accent) 8%,transparent);"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- KASA ACENTE BANA KALAN SAYFASI -->
+<div id="page-kasa-acb" class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🏢 İptalden Acente Komisyon Bana Kalan</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div id="kalt-acb-toplam" style="font-size:13px;font-weight:800;color:var(--info);"></div>
+        <button class="btn btn-outline btn-sm" onclick="kaltPrint('acb')">🖨️ Yazdır</button>
+        <button class="btn btn-info btn-sm" onclick="kaltExcel('acb')">📊 Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="showPage('kasa')">← Kasaya Dön</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 0 0;">
+      <select id="kalt-acb-yil" onchange="renderKasaAlt('acb')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;"></select>
+      <select id="kalt-acb-ay" onchange="renderKasaAlt('acb')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;">
+        <option value="">Tüm Aylar</option>
+        <option value="01">Ocak</option><option value="02">Şubat</option><option value="03">Mart</option>
+        <option value="04">Nisan</option><option value="05">Mayıs</option><option value="06">Haziran</option>
+        <option value="07">Temmuz</option><option value="08">Ağustos</option><option value="09">Eylül</option>
+        <option value="10">Ekim</option><option value="11">Kasım</option><option value="12">Aralık</option>
+      </select>
+      <input type="text" id="kalt-acb-musteri" placeholder="🔍 Müşteri" oninput="renderKasaAlt('acb')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:140px;">
+      <input type="text" id="kalt-acb-polno" placeholder="Poliçe No" oninput="renderKasaAlt('acb')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:120px;">
+      <button class="btn btn-outline btn-sm" onclick="kaltFiltreTemizle('acb')">✖ Temizle</button>
+    </div>
+    <div class="table-wrap">
+      <table id="kalt-acb-table">
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>Kul.Gün</th><th>Ac.Kom.</th><th>Ac.İade</th><th>Ac.Bana Kalan</th><th>Belgeler</th></tr></thead>
+        <tbody id="kalt-acb-tbody"></tbody>
+        <tfoot><tr id="kalt-acb-foot" style="font-weight:700;background:color-mix(in srgb,var(--info) 8%,transparent);"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- KASA TOPLAM KAZANÇ SAYFASI -->
+<div id="page-kasa-gen" class="page">
+  <div class="card" style="border:2px solid var(--primary);">
+    <div class="card-header">
+      <div class="card-title" style="color:var(--primary);">🏆 İptalden Toplam Kazanç (MKöçe + Acente Bana Kalan)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div id="kalt-gen-toplam" style="font-size:14px;font-weight:800;color:var(--primary);"></div>
+        <button class="btn btn-outline btn-sm" onclick="kaltPrint('gen')">🖨️ Yazdır</button>
+        <button class="btn btn-info btn-sm" onclick="kaltExcel('gen')">📊 Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="showPage('kasa')">← Kasaya Dön</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 0 0;">
+      <select id="kalt-gen-yil" onchange="renderKasaAlt('gen')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;"></select>
+      <select id="kalt-gen-ay" onchange="renderKasaAlt('gen')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;">
+        <option value="">Tüm Aylar</option>
+        <option value="01">Ocak</option><option value="02">Şubat</option><option value="03">Mart</option>
+        <option value="04">Nisan</option><option value="05">Mayıs</option><option value="06">Haziran</option>
+        <option value="07">Temmuz</option><option value="08">Ağustos</option><option value="09">Eylül</option>
+        <option value="10">Ekim</option><option value="11">Kasım</option><option value="12">Aralık</option>
+      </select>
+      <input type="text" id="kalt-gen-musteri" placeholder="🔍 Müşteri" oninput="renderKasaAlt('gen')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:140px;">
+      <input type="text" id="kalt-gen-polno" placeholder="Poliçe No" oninput="renderKasaAlt('gen')" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter';font-size:12px;background:var(--card);color:var(--text);outline:none;min-width:120px;">
+      <button class="btn btn-outline btn-sm" onclick="kaltFiltreTemizle('gen')">✖ Temizle</button>
+    </div>
+    <div class="table-wrap">
+      <table id="kalt-gen-table">
+        <thead><tr><th>#</th><th>Müşteri</th><th>Poliçe No</th><th>Şirket</th><th>İptal Tarihi</th><th>MKöçe Kazanç</th><th>Ac.Bana Kalan</th><th>Toplam Kazanç</th><th>Belgeler</th></tr></thead>
+        <tbody id="kalt-gen-tbody"></tbody>
+        <tfoot><tr id="kalt-gen-foot" style="font-weight:700;background:color-mix(in srgb,var(--primary) 8%,transparent);"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 </div><!-- /main -->
 
 <!-- MODAL: MÜŞTERİ EKLE/DÜZENLE -->
@@ -3207,7 +3313,7 @@ setInterval(updateClock,1000);updateClock();
 // ==============================
 // NAVIGATION
 // ==============================
-const pageTitles={dashboard:'Ana Sayfa',musteriler:'Müşteriler','police-ekle':'Poliçe Ekle','police-listesi':'Poliçe Listesi','police-takip':'Poliçe Takip',cari:'Cari',tahsilat:'Tahsilat',kasa:'MKöçe Kasa',acente:'Acente','iptal-iade':'İptal & İadeler','not-defteri':'Not Defteri',whatsapp:'WhatsApp',ayarlar:'Ayarlar','gelir-grafigi':'📊 Gelir Grafiği','dogum-gunleri':'🎂 Doğum Günleri','taksit-plani':'💰 Taksit Planı','yenileme-uyarisi':'🔔 Yenileme Uyarısı'};
+const pageTitles={dashboard:'Ana Sayfa','kasa-pol':'📋 Acente Komisyon','kasa-ipt':'🔄 MKöçe İptal Kazanç','kasa-acb':'🏢 Acente Bana Kalan','kasa-gen':'🏆 Toplam Kazanç',musteriler:'Müşteriler','police-ekle':'Poliçe Ekle','police-listesi':'Poliçe Listesi','police-takip':'Poliçe Takip',cari:'Cari',tahsilat:'Tahsilat',kasa:'MKöçe Kasa',acente:'Acente','iptal-iade':'İptal & İadeler','not-defteri':'Not Defteri',whatsapp:'WhatsApp',ayarlar:'Ayarlar','gelir-grafigi':'📊 Gelir Grafiği','dogum-gunleri':'🎂 Doğum Günleri','taksit-plani':'💰 Taksit Planı','yenileme-uyarisi':'🔔 Yenileme Uyarısı'};
 
 function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3229,9 +3335,11 @@ function showPage(name){
   const nav=byId('nav-'+name);
   if(nav)nav.classList.add('active');
   sv('pageTitle',pageTitles[name]||name);
+  const vBtn=byId('veri-yonetimi-shortcut');
+  if(vBtn){vBtn.style.display=(name==='dashboard')?'inline-flex':'none';}
   closeSidebar();syncBottomNav(name);
   if(['police-ekle','police-takip','tahsilat','iptal-iade','whatsapp','not-defteri','cari'].includes(name))populateSelects();
-  const renders={dashboard:renderDashboard,musteriler:renderMusteriler,'police-listesi':renderPoliceListesi,'police-takip':renderTakip,cari:renderCari,tahsilat:renderTahsilat,kasa:renderKasa,acente:renderAcente,'iptal-iade':renderIptal,'not-defteri':renderNots,whatsapp:initWA,ayarlar:renderAyarlar,'gelir-grafigi':renderGelirGrafigi,'dogum-gunleri':renderDogumGunleri,'taksit-plani':renderTaksitPlani,'yenileme-uyarisi':renderYenilemeUyarisi};
+  const renders={dashboard:renderDashboard,musteriler:renderMusteriler,'police-listesi':renderPoliceListesi,'police-takip':renderTakip,cari:renderCari,tahsilat:renderTahsilat,kasa:renderKasa,'kasa-pol':()=>renderKasaAlt('pol'),'kasa-ipt':()=>renderKasaAlt('ipt'),'kasa-acb':()=>renderKasaAlt('acb'),'kasa-gen':()=>renderKasaAlt('gen'),acente:renderAcente,'iptal-iade':renderIptal,'not-defteri':renderNots,whatsapp:initWA,ayarlar:renderAyarlar,'gelir-grafigi':renderGelirGrafigi,'dogum-gunleri':renderDogumGunleri,'taksit-plani':renderTaksitPlani,'yenileme-uyarisi':renderYenilemeUyarisi};
   if(renders[name])renders[name]();
 }
 function toggleSidebar(){byId('sidebar').classList.toggle('open');byId('sb-overlay').classList.toggle('show');}
@@ -3388,12 +3496,12 @@ function renderMusteriler(){
     <td>${m.tel||'-'}</td><td>${m.sehir||'-'}</td>
     <td>${m.tip==='kurumsal'||m.tip==='kobi'?'VN: '+(m.vergino||'-'):'TC: '+(m.tc||'-')}</td>
     <td>${fmtD(m.dogum)}</td><td>${m.aciklama||'-'}</td>
-    <td style="display:flex;gap:4px;">
-      <button class="btn btn-primary btn-xs" onclick='editMusteri("${m.id}")'>✏️</button>
-      <button class="btn btn-danger btn-xs" onclick='delMusteri("${m.id}")'>🗑️</button>
-      <button class="btn btn-success btn-xs" onclick='openMusteriDetay("${m.id}")'>👁️</button>
-      <button class="btn btn-xs btn-wa" onclick='waMusteri("${m.id}")'>💬</button>
-    </td>
+    <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="btn-act btn-act-success" onclick='openMusteriDetay("${m.id}")'>👁️ Detay</button>
+        <button class="btn-act btn-act-primary" onclick='editMusteri("${m.id}")'>✏️ Düzenle</button>
+        <button class="btn-act btn-act-wa" onclick='waMusteri("${m.id}")'>💬 WA</button>
+        <button class="btn-act btn-act-danger" onclick='delMusteri("${m.id}")'>🗑️ Sil</button>
+      </td>
   </tr>`).join('');
 }
 function editMusteri(id){
@@ -4725,12 +4833,12 @@ function renderPoliceListesi(){
       <td>${p.oran||0}%</td><td>₺${fmt(p.ackomisyon)}</td><td>₺${fmt(p.net)}</td><td>₺${fmt(p.brut)}</td>
       <td><span class="badge ${p.odemeDurum==='odendi'?'badge-success':p.odemeDurum==='taksitli'?'badge-info':'badge-danger'}">${p.odemeDurum==='odendi'?'Ödendi':p.odemeDurum==='taksitli'?'💰 Taksitli':'Ödenmedi'}</span></td>
       <td>${p.odemeTip||'-'}</td>
-      <td style="display:flex;gap:3px;flex-wrap:nowrap;white-space:nowrap;">
-        <button class="btn btn-primary btn-xs" onclick='editPolice("${p.id}")'>✏️</button>
-        <button class="btn btn-danger btn-xs" onclick='delPolice("${p.id}")'>🗑️</button>
-        <button class="btn btn-success btn-xs" onclick='detayPolice("${p.id}")'>👁️</button>
-        ${p.aciklama?`<button class="btn btn-warning btn-xs" onclick='showAciklamaPopup(this,"${p.id}")' title="Açıklama">💬</button>`:''}
-        ${(p.docs&&(p.docs.ruhsat||p.docs.tc||p.docs.pdf))?`<button class="btn btn-info btn-xs" onclick='openPoliceDocsModal("${p.id}")' title="Belgeler">📎</button>`:''}
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="btn-act btn-act-success" onclick='detayPolice("${p.id}")'>👁️ Detay</button>
+        <button class="btn-act btn-act-primary" onclick='editPolice("${p.id}")'>✏️ Düzenle</button>
+        <button class="btn-act btn-act-info" onclick='openPoliceDocsModal("${p.id}")'>📎 Belgeler</button>
+        <button class="btn-act btn-act-warning" onclick='showAciklamaPopup(this,"${p.id}")'>💬 Not</button>
+        <button class="btn-act btn-act-danger" onclick='delPolice("${p.id}")'>🗑️ Sil</button>
       </td>
     </tr>`;
   }).join('');
@@ -5023,11 +5131,11 @@ function renderTakip(){
       <td style="color:var(--accent);">₺${fmt(tB)}</td><td style="color:var(--success);">₺${fmt(tA)}</td>
       <td style="font-weight:700;color:${(tB-tA)>0?'var(--accent)':'var(--success)'};">₺${fmt(tB-tA)}</td>
       <td>${p.aciklama?`<button class="btn btn-warning btn-xs" onclick='showAciklamaPopup(this,"${p.id}")'>💬</button>`:'-'}</td>
-      <td style="display:flex;gap:3px;flex-wrap:nowrap;">
-        <button class="btn btn-primary btn-xs" onclick='editPolice("${p.id}")'>✏️</button>
-        <button class="btn btn-danger btn-xs" onclick='delPolice("${p.id}");renderTakip()'>🗑️</button>
-        <button class="btn btn-success btn-xs" onclick='detayPolice("${p.id}")'>👁️</button>
-        ${(p.docs&&(p.docs.ruhsat||p.docs.tc||p.docs.pdf))?`<button class="btn btn-info btn-xs" onclick='openPoliceDocsModal("${p.id}")'>📎</button>`:''}
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="btn-act btn-act-success" onclick='detayPolice("${p.id}")'>👁️ Detay</button>
+        <button class="btn-act btn-act-primary" onclick='editPolice("${p.id}")'>✏️ Düzenle</button>
+        ${(p.docs&&(p.docs.ruhsat||p.docs.tc||p.docs.pdf))?`<button class="btn-act btn-act-info" onclick='openPoliceDocsModal("${p.id}")'>📎 Belgeler</button>`:''}
+        <button class="btn-act btn-act-danger" onclick='delPolice("${p.id}");renderTakip()'>🗑️ Sil</button>
       </td>
     </tr>`;
   }).join(''):'<tr><td colspan="16" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';
@@ -5083,12 +5191,10 @@ function renderCari(){
       <td style="color:var(--success);font-weight:700;">₺${fmt(x.toplamAlacak)}</td>
       <td style="font-weight:700;color:${kalanColor};">₺${fmt(Math.abs(x.kalan))}</td>
       <td>${badge}</td>
-      <td>
-        <button class="btn btn-outline btn-xs" onclick='toggleCariDetay("${x.musteriId}")'>📋 Detay</button>
-      </td>
-      <td style="display:flex;gap:3px;">
-        <button class="btn btn-success btn-xs" onclick='openMusteriDetay("${x.musteriId}")'>👁️</button>
-        <button class="btn btn-outline btn-xs" onclick='printCari("${x.musteriId}")'>🖨️</button>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="btn-act btn-act-success" onclick='openMusteriDetay("${x.musteriId}")'>👁️ Müşteri</button>
+        <button class="btn-act btn-act-info" onclick='toggleCariDetay("${x.musteriId}")'>📋 Cari Detay</button>
+        <button class="btn-act btn-act-primary" onclick='printCari("${x.musteriId}")'>🖨️ Yazdır</button>
       </td>
     </tr>
     <tr id="cari-detay-${x.musteriId}" style="display:none;">
@@ -5114,9 +5220,9 @@ function renderCari(){
                 <td style="padding:5px 8px;border-bottom:1px solid var(--border);color:var(--danger);">₺${fmt(c.borc)}</td>
                 <td style="padding:5px 8px;border-bottom:1px solid var(--border);color:var(--success);">₺${fmt(c.alacak)}</td>
                 <td style="padding:5px 8px;border-bottom:1px solid var(--border);color:var(--muted);">${c.aciklama||'-'}</td>
-                <td style="padding:5px 8px;border-bottom:1px solid var(--border);display:flex;gap:3px;">
-                  <button class="btn btn-primary btn-xs" onclick='editCari("${c.id}")'>✏️</button>
-                  <button class="btn btn-danger btn-xs" onclick='delCari("${c.id}")'>🗑️</button>
+                <td style="display:flex;gap:4px;">
+                  <button class="btn-act btn-act-primary" onclick='editCari("${c.id}")'>✏️ Düzenle</button>
+                  <button class="btn-act btn-act-danger" onclick='delCari("${c.id}")'>🗑️ Sil</button>
                 </td>
               </tr>`).join('')}
             </tbody>
@@ -5264,9 +5370,9 @@ function renderTahsilat(){
       <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:color-mix(in srgb,${durClr} 15%,transparent);color:${durClr};">${dur}</span></td>
       <td>${ibanDisplay}</td>
       <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.aciklama||'-'}</td>
-      <td style="display:flex;gap:3px;">
-        <button class="btn btn-primary btn-xs" onclick='editTahsilat("${t.id}")'>✏️</button>
-        <button class="btn btn-danger btn-xs" onclick='delTahsilat("${t.id}")'>🗑️</button>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="btn-act btn-act-primary" onclick='editTahsilat("${t.id}")'>✏️ Düzenle</button>
+        <button class="btn-act btn-act-danger" onclick='delTahsilat("${t.id}")'>🗑️ Sil</button>
       </td>
     </tr>`;
   }).join('');
@@ -5592,9 +5698,9 @@ function renderAcente(){
       <td style="color:var(--accent);">₺${fmt(topK)}</td>
       <td style="color:var(--success);">₺${fmt(topA)}</td>
       <td style="font-weight:700;">₺${fmt(topK-topA)}</td>
-      <td style="display:flex;gap:3px;">
-        <button class="btn btn-danger btn-xs" onclick='delAcente("${a.id}")'>🗑️</button>
-        <button class="btn btn-success btn-xs" onclick='openAcenteDetay("${a.id}")'>👁️</button>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--info);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;" onclick='openAcenteDetay("${a.id}")'>👁️ Detay</button>
+        <button style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger);border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;" onclick='delAcente("${a.id}")'>🗑️ Sil</button>
       </td>
     </tr>`;
   }).join('');
@@ -6066,9 +6172,9 @@ function renderIptal(){
       '<td style="color:var(--accent);font-weight:800;background:color-mix(in srgb,var(--accent) 8%,transparent);">\u20ba'+fmt(ii.mkKazanc)+'</td>'+
       '<td style="min-width:100px;">'+noterInfo+(ii.aciklama?'<div style="font-size:10px;color:var(--muted);margin-top:3px;">'+ii.aciklama+'</div>':'')+'</td>'+
       '<td style="min-width:95px;">'+docBtns+'</td>'+
-      '<td style="white-space:nowrap;display:flex;gap:3px;">'+
-        '<button class="btn btn-primary btn-xs" onclick=\'editIptal("'+ii.id+'")\'>✏️</button>'+
-        '<button class="btn btn-danger btn-xs" onclick=\'delIptal("'+ii.id+'")\'>🗑️</button>'+
+      '<td style="white-space:nowrap;display:flex;gap:4px;flex-wrap:wrap;">'+
+        '<button class="btn-act btn-act-primary" onclick=\'editIptal("'+ii.id+'")\'>✏️ Düzenle</button>'+
+        '<button class="btn-act btn-act-danger" onclick=\'delIptal("'+ii.id+'")\'>🗑️ Sil</button>'+
       '</td>'+
       '</tr>';
   }).join('');
@@ -6940,9 +7046,9 @@ function renderNots(){
       return `<tr>
         <td>${who}</td><td>${fmtD(n.tarih)}</td><td><b>${n.baslik||'-'}</b></td>
         <td style="max-width:300px;white-space:normal;">${n.icerik}</td>
-        <td style="display:flex;gap:3px;">
-          <button class="btn btn-primary btn-xs" onclick='editNot("${n.id}")'>✏️</button>
-          <button class="btn btn-danger btn-xs" onclick='delNot("${n.id}")'>🗑️</button>
+        <td style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="btn-act btn-act-primary" onclick='editNot("${n.id}")'>✏️ Düzenle</button>
+          <button class="btn-act btn-act-danger" onclick='delNot("${n.id}")'>🗑️ Sil</button>
         </td>
       </tr>`;
     }).join('');
@@ -7397,7 +7503,7 @@ function renderGecikRapor(){
       <td style="font-weight:700;color:var(--danger);">₺${fmt(Math.max(0,t.kalan))}</td>
       <td>${DURUM_LABEL[t.durum]||t.durum}</td>
       <td style="display:flex;gap:4px;">
-        <button class="btn btn-primary btn-xs" onclick='editTahsilat("${t.id}")'>✏️</button>
+        <button class="btn-act btn-act-primary" onclick='editTahsilat("${t.id}")'>✏️ Düzenle</button>
         <button class="btn btn-success btn-xs" onclick='gecikHatirlat("${t.id}")'>📱</button>
       </td>
     </tr>`;
@@ -7700,8 +7806,8 @@ function renderModelYiliListesi(){
     return '<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;">'
       +'<span style="min-width:22px;height:22px;background:var(--grad-1);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">'+(i+1)+'</span>'
       +'<span style="flex:1;font-size:13px;font-weight:600;color:var(--text);">📅 '+y+'</span>'
-      +'<button class="btn btn-primary btn-xs" onclick="modelYiliDuzenle('+i+')">✏️ Düzenle</button>'
-      +'<button class="btn btn-danger btn-xs" onclick="modelYiliSil('+i+')">🗑️ Sil</button>'
+      +'<button class="btn-act btn-act-primary" onclick="modelYiliDuzenle('+i+')">✏️ Düzenle</button>'
+      +'<button class="btn-act btn-act-danger" onclick="modelYiliSil('+i+')">🗑️ Sil</button>'
       +'</div>';
   }).join('');
   rebuildModelYiliSelect(list);
@@ -8406,7 +8512,7 @@ function renderUsers(){
   tb.innerHTML=users.map(u=>`<tr>
     <td><b>${u.username}</b></td>
     <td><span class="badge ${u.role==='admin'?'badge-info':'badge-muted'}">${u.role==='admin'?'Admin':'Kullanıcı'}</span></td>
-    <td><button class="btn btn-danger btn-xs" onclick='delUser("${u.username}")'>🗑️</button></td>
+    <td><button class="btn-act btn-act-danger" onclick='delUser("${u.username}")'>🗑️ Sil</button></td>
   </tr>`).join('');
 }
 
@@ -8619,7 +8725,20 @@ function autoSaveOzelIcerik(id,tip){
     localStorage.setItem('ozelModulIcerik_'+id,val);
     if(tip==='kod'){
       const fr=byId('ozel-kod-frame-'+id);
-      if(fr)fr.srcdoc=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;padding:16px;margin:0;font-size:14px;}</style></head><body>${val}</body></html>`;
+      if(fr)fr.srcdoc=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;padding:16px;margin:0;font-size:14px;}
+/* KASA TAM EKRAN MODAL */
+#kasa-fullscreen-overlay{display:none;position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);}
+#kasa-fullscreen-modal{position:fixed;inset:16px;z-index:7001;background:var(--card);border-radius:16px;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden;}
+#kasa-fs-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;flex-wrap:wrap;gap:8px;}
+#kasa-fs-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+#kasa-fs-body{flex:1;overflow:auto;padding:16px 20px;}
+#kasa-fs-body table{width:100%;border-collapse:collapse;font-size:13px;}
+#kasa-fs-body thead th{position:sticky;top:0;background:var(--card);padding:9px 12px;text-align:left;border-bottom:2px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;z-index:2;}
+#kasa-fs-body tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
+#kasa-fs-body tbody tr:hover{background:color-mix(in srgb,var(--primary) 4%,transparent);}
+#kasa-fs-body tfoot td{padding:9px 12px;font-weight:700;background:color-mix(in srgb,var(--primary) 6%,transparent);border-top:2px solid var(--border);white-space:nowrap;}
+@media(min-width:601px){#kasa-fullscreen-modal{border-radius:18px;bottom:24px;right:24px;inset:24px;}}
+</style></head><body>${val}</body></html>`;
     }
     const msg=byId('ozel-save-msg-'+id);
     if(msg){msg.textContent='✅ Kaydedildi';setTimeout(()=>{if(msg)msg.textContent='';},2000);}
@@ -8686,9 +8805,9 @@ function renderModulGrid(){
             <div onclick="toggleOzelModulAcikGrid('${m.id}')" title="${acik?'Gizle':'Göster'}" style="cursor:pointer;width:36px;height:20px;border-radius:10px;background:${acik?'var(--success)':'var(--border)'};position:relative;transition:background .2s;">
               <div style="position:absolute;top:2px;left:${acik?'18px':'2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>
             </div>
-            <button class="btn btn-primary btn-xs" onclick="openOzelModulModal('${m.id}')">✏️</button>
+            <button class="btn-act btn-act-primary" onclick="openOzelModulModal('${m.id}')">✏️ Düzenle</button>
             <button class="btn btn-info btn-xs" onclick="ozelModulTamEkran('${m.id}')" title="Tam Sayfa Görüntüle">⛶</button>
-            <button class="btn btn-danger btn-xs" onclick="delOzelModul('${m.id}')">🗑️</button>
+            <button class="btn-act btn-act-danger" onclick="delOzelModul('${m.id}')">🗑️ Sil</button>
           </div>
         </div>
       </div>`;
@@ -9417,6 +9536,301 @@ function yuWaToplu(){
   if(yaklasan.length===0){alert('Yenileme listesi boş.');return;}
   alert(`${yaklasan.length} poliçe için toplu WA gönderimi başlatıldı.\n(Her müşteriye ayrı ayrı mesaj açılacak)`);
 }
+
+
+// ══════════════════════════════════════════
+// KASA TAM EKRAN MODAL
+// ══════════════════════════════════════════
+const _kfsConfig = {
+  pol:{title:'📋 Poliçelerden Gelen Kazanç — Acente Komisyon',color:'var(--success)',
+       tbodyId:'kasa-pol-tbody',tfootId:'kasa-pol-foot',toplamId:'kasa-pol-toplam'},
+  ipt:{title:'🔄 İptalden Gelen MKöçe Kazanç',color:'var(--accent)',
+       tbodyId:'kasa-ipt-tbody',tfootId:'kasa-ipt-foot',toplamId:'kasa-ipt-toplam'},
+  acb:{title:'🏢 İptalden Acente Komisyon Bana Kalan',color:'var(--info)',
+       tbodyId:'kasa-acb-tbody',tfootId:'kasa-acb-foot',toplamId:'kasa-acb-toplam'},
+  gen:{title:'🏆 İptalden Toplam Kazanç (MKöçe + Acente Bana Kalan)',color:'var(--primary)',
+       tbodyId:'kasa-gen-tbody',tfootId:'kasa-gen-foot',toplamId:'kasa-gen-toplam'}
+};
+let _kfsCurrent=null;
+
+function kasaTamEkran(type){
+  const cfg=_kfsConfig[type];
+  if(!cfg)return;
+  _kfsCurrent=type;
+  const tbody=document.getElementById(cfg.tbodyId);
+  const tfoot=document.getElementById(cfg.tfootId);
+  const toplamEl=document.getElementById(cfg.toplamId);
+  if(!tbody){toast('Tablo henüz yüklenmedi.','error');return;}
+  document.getElementById('kasa-fs-title').textContent=cfg.title;
+  const fsT=document.getElementById('kasa-fs-toplam');
+  fsT.textContent=toplamEl?toplamEl.textContent:'';
+  fsT.style.color=cfg.color;
+  const rowCount=tbody.querySelectorAll('tr').length;
+  document.getElementById('kasa-fs-count').textContent=rowCount+' kayıt';
+  const origTable=tbody.closest('table');
+  const tableClone=origTable.cloneNode(true);
+  document.getElementById('kasa-fs-body').innerHTML='';
+  document.getElementById('kasa-fs-body').appendChild(tableClone);
+  document.getElementById('kasa-fullscreen-overlay').style.display='block';
+  document.getElementById('kasa-fullscreen-modal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function kasaTamEkranKapat(){
+  document.getElementById('kasa-fullscreen-overlay').style.display='none';
+  document.getElementById('kasa-fullscreen-modal').style.display='none';
+  document.body.style.overflow='';
+  _kfsCurrent=null;
+}
+function kasaFsPrint(){
+  const cfg=_kfsCurrent?_kfsConfig[_kfsCurrent]:null;
+  const title=cfg?cfg.title:'Kasa';
+  const tableEl=document.getElementById('kasa-fs-body').querySelector('table');
+  if(!tableEl){toast('Tablo bulunamadı.','error');return;}
+  const win=window.open('','_blank','width=1100,height=750');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title>'
+    +'<style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;}h2{margin-bottom:14px;}'
+    +'table{width:100%;border-collapse:collapse;}th{background:#f0f0f0;padding:7px;text-align:left;border:1px solid #ccc;font-size:10px;text-transform:uppercase;}'
+    +'td{padding:7px;border:1px solid #ddd;}tfoot td{font-weight:700;background:#f9f9f9;border-top:2px solid #ccc;}'
+    +'@page{margin:12mm;}</style></head><body><h2>'+title+'</h2>'+tableEl.outerHTML
+    +'<scr'+'ipt>window.onload=function(){window.print();}<'+'/scr'+'ipt></body></html>');
+  win.document.close();
+}
+function kasaFsExcel(){
+  const cfg=_kfsCurrent?_kfsConfig[_kfsCurrent]:null;
+  const fname=cfg?cfg.title.replace(/[^\w\sçğıöşüÇĞİÖŞÜ]/g,'').trim():'kasa';
+  const tableEl=document.getElementById('kasa-fs-body').querySelector('table');
+  if(!tableEl){toast('Tablo bulunamadı.','error');return;}
+  let csv='';
+  tableEl.querySelectorAll('tr').forEach(function(row){
+    var cells=Array.from(row.querySelectorAll('th,td')).map(function(c){
+      return '"'+(c.innerText||'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
+    });
+    csv+=cells.join(';')+'\n';
+  });
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=fname.replace(/\s+/g,'_')+'_'+new Date().toISOString().substr(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('Excel indirildi!','success');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')kasaTamEkranKapat();});
+
+// ══════════════════════════════════════════
+// KASA ALT SAYFALARI (Ayrı Tam Sayfa)
+// ══════════════════════════════════════════
+function _kaltYillarDoldur(type){
+  // Veri kaynağını tespit et
+  const rows = (type==='pol') ? DB.policeler : DB.iptaller;
+  const dateKey = (type==='pol') ? 'tanzim' : 'iptaltarihi';
+  const yillar = [...new Set(rows.map(r=>(r[dateKey]||'').substr(0,4)).filter(y=>y&&y.length===4))].sort().reverse();
+  const sel = byId('kalt-'+type+'-yil');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Tüm Yıllar</option>' + yillar.map(y=>`<option value="${y}" ${y===cur?'selected':''}>${y}</option>`).join('');
+  if(!cur && yillar.length){ sel.value=yillar[0]; } // varsayılan: son yıl
+}
+
+function kaltFiltreTemizle(type){
+  const yilSel = byId('kalt-'+type+'-yil');
+  const aySel  = byId('kalt-'+type+'-ay');
+  const mEl    = byId('kalt-'+type+'-musteri');
+  const pEl    = byId('kalt-'+type+'-polno');
+  if(aySel)  aySel.value='';
+  if(mEl)    mEl.value='';
+  if(pEl)    pEl.value='';
+  // Yılı da sıfırla (boş = tümü)
+  if(yilSel) yilSel.value='';
+  renderKasaAlt(type);
+}
+
+function _kaltGetFiltre(type){
+  const yil  = (byId('kalt-'+type+'-yil') ||{}).value  || '';
+  const ay   = (byId('kalt-'+type+'-ay')  ||{}).value  || '';
+  const mAra = ((byId('kalt-'+type+'-musteri')||{}).value||'').trim().toLowerCase();
+  const pAra = ((byId('kalt-'+type+'-polno')  ||{}).value||'').trim().toLowerCase();
+  return {yil,ay,mAra,pAra};
+}
+
+function _kaltInRange(dateStr, yil, ay){
+  if(!dateStr) return false;
+  const d = dateStr.substr(0,10); // YYYY-MM-DD
+  if(yil && !d.startsWith(yil))   return false;
+  if(ay  && d.substr(5,2) !== ay) return false;
+  return true;
+}
+
+function renderKasaAlt(type){
+  // Yıl selectlerini doldur (ilk açılışta)
+  _kaltYillarDoldur(type);
+  const {yil,ay,mAra,pAra} = _kaltGetFiltre(type);
+
+  if(type==='pol'){
+    let list = DB.policeler.filter(p=>{
+      if(!_kaltInRange(p.tanzim, yil, ay)) return false;
+      const m = getMusteri(p.musteriId);
+      if(mAra && !(m&&m.ad&&m.ad.toLowerCase().includes(mAra))) return false;
+      if(pAra && !(p.polNo&&p.polNo.toLowerCase().includes(pAra))) return false;
+      return true;
+    });
+    const topK = list.reduce((s,p)=>s+(p.ackomisyon||0),0);
+    const topB = list.reduce((s,p)=>s+(p.brut||0),0);
+    const topN = list.reduce((s,p)=>s+(p.net||0),0);
+    byId('kalt-pol-toplam').textContent='Toplam Ac.Kom: ₺'+fmt(topK);
+    byId('kalt-pol-tbody').innerHTML = list.length ? list.map((p,i)=>{
+      const m=getMusteri(p.musteriId);
+      const pDocs=p.docs||{};
+      const docBtns=_kasaDocBtns([
+        pDocs.ruhsat?{label:'📋 Ruhsat',pid:p.id,dtype:'ruhsat'}:null,
+        pDocs.tc   ?{label:'🪪 Kimlik',pid:p.id,dtype:'tc'}:null,
+        pDocs.pdf  ?{label:'📑 Poliçe',pid:p.id,dtype:'pdf'}:null,
+      ]);
+      return '<tr><td>'+(i+1)+'</td><td><b>'+(m?m.ad:'-')+'</b></td>'
+        +'<td>'+(p.polNo||'-')+'</td><td>'+(p.sirket||'-')+'</td>'
+        +'<td>'+(p.plaka||'-')+'</td><td>'+fmtD(p.tanzim)+'</td>'
+        +'<td class="num">₺'+fmt(p.brut)+'</td>'
+        +'<td class="num">₺'+fmt(p.net)+'</td>'
+        +'<td class="num" style="color:var(--success);font-weight:700;">₺'+fmt(p.ackomisyon)+'</td>'
+        +'<td>'+docBtns+'</td></tr>';
+    }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:18px;">Kayıt yok</td></tr>';
+    byId('kalt-pol-foot').innerHTML='<td colspan="6" style="text-align:right;">TOPLAM ('+list.length+'):</td>'
+      +'<td class="num">₺'+fmt(topB)+'</td><td class="num">₺'+fmt(topN)+'</td>'
+      +'<td class="num" style="color:var(--success);">₺'+fmt(topK)+'</td><td></td>';
+  }
+
+  if(type==='ipt'||type==='acb'||type==='gen'){
+    let list = DB.iptaller.filter(ii=>{
+      if(!_kaltInRange(ii.iptaltarihi, yil, ay)) return false;
+      const m = getMusteri(ii.musteriId);
+      if(mAra && !(m&&m.ad&&m.ad.toLowerCase().includes(mAra))) return false;
+      if(pAra && !(ii.polNo&&ii.polNo.toLowerCase().includes(pAra))) return false;
+      return true;
+    });
+    const iptTopMK   = list.reduce((s,ii)=>s+(ii.mkKazanc||0),0);
+    const iptTopBrut = list.reduce((s,ii)=>s+(ii.brut||0),0);
+    const iptTopMKI  = list.reduce((s,ii)=>s+(ii.mkIade||0),0);
+    const iptTopKaz  = list.reduce((s,ii)=>s+(ii.kazanc||0),0);
+    const acbTopKom  = list.reduce((s,ii)=>s+(ii.acKom||0),0);
+    const acbTopIade = list.reduce((s,ii)=>s+(ii.acIade||0),0);
+    const acbTopBK   = list.reduce((s,ii)=>s+(ii.acBaKalan||0),0);
+    const genTop     = iptTopMK + acbTopBK;
+
+    if(type==='ipt'){
+      byId('kalt-ipt-toplam').textContent='Toplam MKöçe Kazanç: ₺'+fmt(iptTopMK);
+      byId('kalt-ipt-tbody').innerHTML = list.length ? list.map((ii,i)=>{
+        const m=getMusteri(ii.musteriId);
+        const docBtns=_kasaDocBtns([
+          (ii.docs||{}).senet?{label:'📄 Senet',  iid:ii.id,dtype:'senet'}:null,
+          (ii.docs||{}).pdf  ?{label:'📑 İptal PDF',iid:ii.id,dtype:'pdf'}:null,
+        ]);
+        return '<tr><td>'+(i+1)+'</td><td><b>'+(m?m.ad:'-')+'</b></td>'
+          +'<td>'+(ii.polNo||'-')+'</td><td>'+(ii.sirket||'-')+'</td>'
+          +'<td>'+fmtD(ii.iptaltarihi)+'</td>'
+          +'<td class="num">₺'+fmt(ii.brut)+'</td>'
+          +'<td class="num" style="color:var(--warning);">₺'+fmt(ii.mkIade)+'</td>'
+          +'<td class="num" style="color:var(--accent);">₺'+fmt(ii.kazanc)+'</td>'
+          +'<td class="num" style="color:var(--accent);font-weight:800;">₺'+fmt(ii.mkKazanc)+'</td>'
+          +'<td>'+docBtns+'</td></tr>';
+      }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:18px;">Kayıt yok</td></tr>';
+      byId('kalt-ipt-foot').innerHTML='<td colspan="5" style="text-align:right;">TOPLAM ('+list.length+'):</td>'
+        +'<td class="num">₺'+fmt(iptTopBrut)+'</td>'
+        +'<td class="num" style="color:var(--warning);">₺'+fmt(iptTopMKI)+'</td>'
+        +'<td class="num" style="color:var(--accent);">₺'+fmt(iptTopKaz)+'</td>'
+        +'<td class="num" style="color:var(--accent);">₺'+fmt(iptTopMK)+'</td><td></td>';
+    }
+    if(type==='acb'){
+      byId('kalt-acb-toplam').textContent='Toplam Bana Kalan: ₺'+fmt(acbTopBK);
+      byId('kalt-acb-tbody').innerHTML = list.length ? list.map((ii,i)=>{
+        const m=getMusteri(ii.musteriId);
+        const docBtns=_kasaDocBtns([
+          (ii.docs||{}).senet?{label:'📄 Senet',  iid:ii.id,dtype:'senet'}:null,
+          (ii.docs||{}).pdf  ?{label:'📑 İptal PDF',iid:ii.id,dtype:'pdf'}:null,
+        ]);
+        return '<tr><td>'+(i+1)+'</td><td><b>'+(m?m.ad:'-')+'</b></td>'
+          +'<td>'+(ii.polNo||'-')+'</td><td>'+(ii.sirket||'-')+'</td>'
+          +'<td>'+fmtD(ii.iptaltarihi)+'</td>'
+          +'<td class="num">'+(ii.kulGun||0)+' gün</td>'
+          +'<td class="num">₺'+fmt(ii.acKom)+'</td>'
+          +'<td class="num" style="color:var(--danger);">₺'+fmt(ii.acIade)+'</td>'
+          +'<td class="num" style="color:var(--info);font-weight:800;">₺'+fmt(ii.acBaKalan)+'</td>'
+          +'<td>'+docBtns+'</td></tr>';
+      }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:18px;">Kayıt yok</td></tr>';
+      byId('kalt-acb-foot').innerHTML='<td colspan="6" style="text-align:right;">TOPLAM ('+list.length+'):</td>'
+        +'<td class="num">₺'+fmt(acbTopKom)+'</td>'
+        +'<td class="num" style="color:var(--danger);">₺'+fmt(acbTopIade)+'</td>'
+        +'<td class="num" style="color:var(--info);">₺'+fmt(acbTopBK)+'</td><td></td>';
+    }
+    if(type==='gen'){
+      byId('kalt-gen-toplam').textContent='Toplam Kazanç: ₺'+fmt(genTop);
+      byId('kalt-gen-tbody').innerHTML = list.length ? list.map((ii,i)=>{
+        const m=getMusteri(ii.musteriId);
+        const top=(ii.mkKazanc||0)+(ii.acBaKalan||0);
+        const docBtns=_kasaDocBtns([
+          (ii.docs||{}).senet?{label:'📄 Senet',  iid:ii.id,dtype:'senet'}:null,
+          (ii.docs||{}).pdf  ?{label:'📑 İptal PDF',iid:ii.id,dtype:'pdf'}:null,
+        ]);
+        return '<tr><td>'+(i+1)+'</td><td><b>'+(m?m.ad:'-')+'</b></td>'
+          +'<td>'+(ii.polNo||'-')+'</td><td>'+(ii.sirket||'-')+'</td>'
+          +'<td>'+fmtD(ii.iptaltarihi)+'</td>'
+          +'<td class="num" style="color:var(--accent);">₺'+fmt(ii.mkKazanc)+'</td>'
+          +'<td class="num" style="color:var(--info);">₺'+fmt(ii.acBaKalan)+'</td>'
+          +'<td class="num" style="color:var(--primary);font-weight:800;">₺'+fmt(top)+'</td>'
+          +'<td>'+docBtns+'</td></tr>';
+      }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:18px;">Kayıt yok</td></tr>';
+      byId('kalt-gen-foot').innerHTML='<td colspan="5" style="text-align:right;">TOPLAM ('+list.length+'):</td>'
+        +'<td class="num" style="color:var(--accent);">₺'+fmt(iptTopMK)+'</td>'
+        +'<td class="num" style="color:var(--info);">₺'+fmt(acbTopBK)+'</td>'
+        +'<td class="num" style="color:var(--primary);">₺'+fmt(genTop)+'</td><td></td>';
+    }
+  }
+}
+function kaltPrint(type){
+  const titles={pol:'📋 Poliçelerden Gelen Kazanç — Acente Komisyon',ipt:'🔄 İptalden Gelen MKöçe Kazanç',acb:'🏢 İptalden Acente Komisyon Bana Kalan',gen:'🏆 İptalden Toplam Kazanç'};
+  const tbl=byId('kalt-'+type+'-table');
+  if(!tbl){toast('Tablo bulunamadı.','error');return;}
+  const win=window.open('','_blank','width=1100,height=750');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titles[type]+'</title>'
+    +'<style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;}h2{margin-bottom:14px;}'
+    +'table{width:100%;border-collapse:collapse;}th{background:#f0f0f0;padding:7px;text-align:left;border:1px solid #ccc;font-size:10px;text-transform:uppercase;}'
+    +'td{padding:7px;border:1px solid #ddd;}tfoot td{font-weight:700;background:#f9f9f9;border-top:2px solid #ccc;}'
+    +'@page{margin:12mm;}</style></head><body><h2>'+titles[type]+'</h2>'+tbl.outerHTML
+    +'<scr'+'ipt>window.onload=function(){window.print();}<'+'/scr'+'ipt></body></html>');
+  win.document.close();
+}
+function kaltExcel(type){
+  const titles={pol:'Acente_Komisyon',ipt:'MKoce_Iptal_Kazanc',acb:'Acente_Bana_Kalan',gen:'Toplam_Kazanc'};
+  const tbl=byId('kalt-'+type+'-table');
+  if(!tbl){toast('Tablo bulunamadı.','error');return;}
+  let csv='';
+  tbl.querySelectorAll('tr').forEach(function(row){
+    var cells=Array.from(row.querySelectorAll('th,td')).map(function(c){
+      return '"'+(c.innerText||'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
+    });
+    csv+=cells.join(';')+'\n';
+  });
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=titles[type]+'_'+new Date().toISOString().substr(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('Excel indirildi!','success');
+}
 </script>
+
+<!-- KASA TAM EKRAN MODAL -->
+<div id="kasa-fullscreen-overlay" onclick="kasaTamEkranKapat()"></div>
+<div id="kasa-fullscreen-modal" style="display:none;">
+  <div id="kasa-fs-header">
+    <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;flex-wrap:wrap;">
+      <div id="kasa-fs-title">—</div>
+      <div id="kasa-fs-toplam" style="font-size:13px;font-weight:800;"></div>
+      <div id="kasa-fs-count" style="font-size:11px;color:var(--muted);background:var(--bg);padding:2px 9px;border-radius:20px;border:1px solid var(--border);"></div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-outline btn-sm" onclick="kasaFsPrint()">🖨️ Yazdır</button>
+      <button class="btn btn-outline btn-sm" onclick="kasaFsExcel()">📊 Excel</button>
+      <button class="btn btn-primary btn-sm" onclick="kasaTamEkranKapat()">✕ Kapat</button>
+    </div>
+  </div>
+  <div id="kasa-fs-body"></div>
+</div>
 </body>
 </html>
