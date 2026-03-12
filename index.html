@@ -1412,12 +1412,296 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
         <textarea id="pe-aciklama" placeholder="Açıklama..."></textarea>
       </div>
 
+      <!-- KONUT / İŞYERİ / DASK ÖZEL ALANLAR (seçilince görünür) -->
+      <div id="pe-dask-block" style="display:none;grid-column:1/-1;">
+        <div id="pe-konut-baslik" style="background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 90%,#000),var(--primary2));border-radius:12px;padding:14px 18px;margin-bottom:16px;color:#fff;display:flex;align-items:center;gap:10px;">
+          <span id="pe-konut-icon" style="font-size:24px;">🏠</span>
+          <div>
+            <div id="pe-konut-baslik-text" style="font-size:14px;font-weight:800;font-family:'Space Grotesk',sans-serif;">DASK – Zorunlu Deprem Sigortası</div>
+            <div style="font-size:11px;opacity:.7;margin-top:2px;">Adres ve bina bilgilerini eksiksiz doldurunuz</div>
+          </div>
+        </div>
+
+        <!-- ADRES BİLGİLERİ -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">📍 Adres Bilgileri</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;">
+
+            <!-- İL — seçmeli arama -->
+            <div class="fg" style="margin:0;">
+              <label>İl</label>
+              <div style="position:relative;">
+                <input type="text" id="dask-il-search" placeholder="🔍 İl ara..." autocomplete="off"
+                  oninput="daskIlSearch(this.value)" onfocus="daskIlSearch(this.value)" style="width:100%;">
+                <input type="hidden" id="dask-il">
+                <div id="dask-il-dd" style="display:none;position:absolute;z-index:600;width:200px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-height:220px;overflow-y:auto;margin-top:2px;"></div>
+              </div>
+            </div>
+
+            <!-- İLÇE — seçmeli arama (il seçince aktif) -->
+            <div class="fg" style="margin:0;">
+              <label>İlçe</label>
+              <div style="position:relative;">
+                <input type="text" id="dask-ilce-search" placeholder="Önce il seçin..." autocomplete="off"
+                  oninput="daskIlceSearch(this.value)" onfocus="daskIlceSearch(this.value)"
+                  style="width:100%;" disabled>
+                <input type="hidden" id="dask-ilce">
+                <div id="dask-ilce-dd" style="display:none;position:absolute;z-index:600;width:200px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-height:220px;overflow-y:auto;margin-top:2px;"></div>
+              </div>
+            </div>
+
+            <!-- MAHALLE — elle giriş -->
+            <div class="fg" style="margin:0;">
+              <label>Mahalle</label>
+              <input type="text" id="dask-mahalle" placeholder="Mahalle adı yazın..." oninput="daskUpdateAdres()">
+            </div>
+
+            <!-- CADDE — elle giriş -->
+            <div class="fg" style="margin:0;">
+              <label>Cadde</label>
+              <input type="text" id="dask-cadde" placeholder="Cadde adı yazın..." oninput="daskUpdateAdres()">
+            </div>
+
+            <!-- SOKAK — elle giriş -->
+            <div class="fg" style="margin:0;">
+              <label>Sokak</label>
+              <input type="text" id="dask-sokak" placeholder="Sokak adı yazın..." oninput="daskUpdateAdres()">
+            </div>
+
+            <!-- BİNA NO — elle giriş -->
+            <div class="fg" style="margin:0;">
+              <label>Bina / Kapı No</label>
+              <input type="text" id="dask-bina-no" placeholder="No: 12" oninput="daskUpdateAdres()">
+            </div>
+
+            <!-- KAT — elle giriş -->
+            <div class="fg" style="margin:0;">
+              <label>Kat / Daire</label>
+              <input type="text" id="dask-daire" placeholder="Kat 3, D: 7" oninput="daskUpdateAdres()">
+            </div>
+
+          </div>
+
+          <!-- TAM ADRES — otomatik çekilir, elle değiştirilebilir -->
+          <div style="margin-top:12px;">
+            <label style="font-size:11px;font-weight:700;color:var(--muted);">📌 Adres (Tam) <small style="font-weight:400;">(yukarıdan otomatik oluşur · elle de düzenlenebilir)</small></label>
+            <textarea id="dask-tam-adres" rows="2" style="width:100%;margin-top:5px;resize:vertical;font-size:12px;" placeholder="İl, ilçe, mahalle, cadde, sokak, bina ve kat seçince otomatik dolar…"></textarea>
+          </div>
+        </div>
+
+        <!-- BİNA BİLGİLERİ -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">🏗️ Bina Bilgileri</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;">
+
+            <div class="fg" style="margin:0;">
+              <label>Bina Yapısı</label>
+              <select id="dask-bina-yapisi">
+                <option value="">-- Seçin --</option>
+                <option>Betonarme</option>
+                <option>Yığma Kâgir</option>
+                <option>Ahşap</option>
+                <option>Çelik</option>
+                <option>Prefabrik</option>
+                <option>Diğer</option>
+              </select>
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Bina İnşaat Yılı</label>
+              <input type="number" id="dask-insaat-yili" placeholder="Örn: 2005" min="1800" max="2030">
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Metrekare (m²)</label>
+              <input type="number" id="dask-m2" placeholder="0" min="1">
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Bulunduğu Kat</label>
+              <select id="dask-kat">
+                <option value="">-- Seçin --</option>
+                <option value="-2">-2. Bodrum</option>
+                <option value="-1">-1. Bodrum</option>
+                <option value="0">Zemin Kat</option>
+                <option value="1">1. Kat</option><option value="2">2. Kat</option><option value="3">3. Kat</option><option value="4">4. Kat</option><option value="5">5. Kat</option>
+                <option value="6">6. Kat</option><option value="7">7. Kat</option><option value="8">8. Kat</option><option value="9">9. Kat</option><option value="10">10. Kat</option>
+                <option value="11">11. Kat</option><option value="12">12. Kat</option><option value="13">13. Kat</option><option value="14">14. Kat</option><option value="15">15. Kat</option>
+                <option value="16+">16+ Kat</option>
+              </select>
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Ada No</label>
+              <input type="text" id="dask-ada" placeholder="Ada No">
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Pafta No</label>
+              <input type="text" id="dask-pafta" placeholder="Pafta No">
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Toplam Kat Sayısı</label>
+              <input type="number" id="dask-toplam-kat" placeholder="0" min="1" max="100">
+            </div>
+
+            <div class="fg" style="margin:0;">
+              <label>Hasar Durumu</label>
+              <select id="dask-hasar">
+                <option value="">-- Seçin --</option>
+                <option>Hasarsız</option>
+                <option>Hafif Hasarlı</option>
+                <option>Orta Hasarlı</option>
+                <option>Ağır Hasarlı</option>
+                <option>Yıkık / Çökmüş</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- DASK BELGELERİ -->
+        <div style="background:var(--bg);border:1px dashed var(--border);border-radius:12px;padding:16px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">📎 DASK Belgeleri <span style="font-weight:400;font-style:italic;text-transform:none;">(İsteğe Bağlı)</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+
+            <div class="doc-upload-box" id="dbox-dask-tapu">
+              <div class="doc-upload-label">🏠 Tapu Resmi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-dask-tapu').click()" id="dzone-dask-tapu">
+                <span class="doc-upload-icon">📄</span><span class="doc-upload-text">Dosya seçmek için tıklayın</span><span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-dask-tapu" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDaskDoc('tapu',this)">
+              <div class="doc-preview" id="dpreview-dask-tapu" style="display:none;"></div>
+            </div>
+
+            <div class="doc-upload-box" id="dbox-dask-tc">
+              <div class="doc-upload-label">🪪 TC Kimlik Resmi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-dask-tc').click()" id="dzone-dask-tc">
+                <span class="doc-upload-icon">🪪</span><span class="doc-upload-text">Dosya seçmek için tıklayın</span><span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-dask-tc" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDaskDoc('tc',this)">
+              <div class="doc-preview" id="dpreview-dask-tc" style="display:none;"></div>
+            </div>
+
+            <div class="doc-upload-box" id="dbox-dask-pdf">
+              <div class="doc-upload-label">📑 Poliçe PDF</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-dask-pdf').click()" id="dzone-dask-pdf">
+                <span class="doc-upload-icon">📑</span><span class="doc-upload-text">Dosya seçmek için tıklayın</span><span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-dask-pdf" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDaskDoc('pdf',this)">
+              <div class="doc-preview" id="dpreview-dask-pdf" style="display:none;"></div>
+            </div>
+
+            <div class="doc-upload-box" id="dbox-dask-fatura">
+              <div class="doc-upload-label">🧾 Fatura Resmi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-dask-fatura').click()" id="dzone-dask-fatura">
+                <span class="doc-upload-icon">🧾</span><span class="doc-upload-text">Dosya seçmek için tıklayın</span><span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-dask-fatura" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDaskDoc('fatura',this)">
+              <div class="doc-preview" id="dpreview-dask-fatura" style="display:none;"></div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /pe-dask-block -->
+
+      <!-- TSS / SAĞLIK / HAYAT BLOĞU -->
+      <div id="pe-saglik-blok" style="display:none;grid-column:1/-1;">
+        <div style="background:color-mix(in srgb,var(--success) 7%,var(--card));border:1.5px solid color-mix(in srgb,var(--success) 30%,var(--border));border-radius:var(--radius);padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span id="pe-saglik-icon" style="font-size:22px;">❤️</span>
+            <div>
+              <div id="pe-saglik-baslik-text" style="font-size:14px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:var(--text);">Sağlık Sigortası</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">TC Kimlik ve Poliçe PDF yükleyebilirsiniz</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+            <div class="doc-upload-box" id="dbox-saglik-tc">
+              <div class="doc-upload-label">🪪 TC Kimlik Resmi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-saglik-tc').click()" id="dzone-saglik-tc">
+                <span class="doc-upload-icon">🪪</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-saglik-tc" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleExtraDoc('saglik-tc',this)">
+              <div class="doc-preview" id="dpreview-saglik-tc" style="display:none;"></div>
+            </div>
+            <div class="doc-upload-box" id="dbox-saglik-pdf">
+              <div class="doc-upload-label">📑 Poliçe PDF</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-saglik-pdf').click()" id="dzone-saglik-pdf">
+                <span class="doc-upload-icon">📑</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-saglik-pdf" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleExtraDoc('saglik-pdf',this)">
+              <div class="doc-preview" id="dpreview-saglik-pdf" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEYAHAT BLOĞU -->
+      <div id="pe-seyahat-blok" style="display:none;grid-column:1/-1;">
+        <div style="background:color-mix(in srgb,#8b5cf6 7%,var(--card));border:1.5px solid color-mix(in srgb,#8b5cf6 30%,var(--border));border-radius:var(--radius);padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:22px;">✈️</span>
+            <div style="font-size:14px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:var(--text);">Seyahat Sigortası</div>
+          </div>
+          <div class="form-grid" style="margin:0;margin-bottom:14px;">
+            <div class="fg">
+              <label>Yaşadığı Ülke (Çıkış)</label>
+              <div style="position:relative;">
+                <input type="text" id="pe-seyahat-ulke-cikis-search" placeholder="🔍 Ülke ara..." autocomplete="off"
+                  oninput="peUlkeSearch('cikis',this.value)" onfocus="peUlkeSearch('cikis',this.value)" style="width:100%;">
+                <input type="hidden" id="pe-seyahat-ulke-cikis" value="Türkiye">
+                <div id="pe-ulke-cikis-dd" style="display:none;position:absolute;z-index:500;width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-height:180px;overflow-y:auto;margin-top:2px;"></div>
+              </div>
+              <div id="pe-ulke-cikis-secili" style="font-size:11px;color:var(--success);margin-top:4px;font-weight:600;">✓ Türkiye</div>
+            </div>
+            <div class="fg">
+              <label>Seyahat Edeceği Ülke (Varış)</label>
+              <div style="position:relative;">
+                <input type="text" id="pe-seyahat-ulke-gidis-search" placeholder="🔍 Ülke ara..." autocomplete="off"
+                  oninput="peUlkeSearch('gidis',this.value)" onfocus="peUlkeSearch('gidis',this.value)" style="width:100%;">
+                <input type="hidden" id="pe-seyahat-ulke-gidis">
+                <div id="pe-ulke-gidis-dd" style="display:none;position:absolute;z-index:500;width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-height:180px;overflow-y:auto;margin-top:2px;"></div>
+              </div>
+              <div id="pe-ulke-gidis-secili" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+            <div class="doc-upload-box" id="dbox-seyahat-tc">
+              <div class="doc-upload-label">🪪 TC Kimlik Resmi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-seyahat-tc').click()" id="dzone-seyahat-tc">
+                <span class="doc-upload-icon">🪪</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-seyahat-tc" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleExtraDoc('seyahat-tc',this)">
+              <div class="doc-preview" id="dpreview-seyahat-tc" style="display:none;"></div>
+            </div>
+            <div class="doc-upload-box" id="dbox-seyahat-pdf">
+              <div class="doc-upload-label">📑 Poliçe PDF</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-seyahat-pdf').click()" id="dzone-seyahat-pdf">
+                <span class="doc-upload-icon">📑</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-seyahat-pdf" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleExtraDoc('seyahat-pdf',this)">
+              <div class="doc-preview" id="dpreview-seyahat-pdf" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 25. BELGELER -->
-      <div style="grid-column:1/-1;">
+      <div style="grid-column:1/-1;" id="pe-standart-belgeler">
         <div style="background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius);padding:16px;">
           <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:.4px;text-transform:uppercase;">📎 Belgeler <span style="font-weight:400;font-style:italic;">(İsteğe Bağlı)</span></div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-            <div class="doc-upload-box" id="dbox-ruhsat">
+            <!-- Ruhsat – sadece Trafik/Kasko -->
+            <div class="doc-upload-box pe-arac-doc" id="dbox-ruhsat">
               <div class="doc-upload-label">📋 Ruhsat / Belge Seri</div>
               <div class="doc-upload-zone" onclick="document.getElementById('pe-file-ruhsat').click()" id="dzone-ruhsat">
                 <span class="doc-upload-icon">📄</span>
@@ -1427,6 +1711,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
               <input type="file" id="pe-file-ruhsat" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('ruhsat',this)">
               <div class="doc-preview" id="dpreview-ruhsat" style="display:none;"></div>
             </div>
+            <!-- TC – her zaman görünür -->
             <div class="doc-upload-box" id="dbox-tc">
               <div class="doc-upload-label">🪪 TC Kimlik Belgesi</div>
               <div class="doc-upload-zone" onclick="document.getElementById('pe-file-tc').click()" id="dzone-tc">
@@ -1437,6 +1722,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
               <input type="file" id="pe-file-tc" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('tc',this)">
               <div class="doc-preview" id="dpreview-tc" style="display:none;"></div>
             </div>
+            <!-- PDF – her zaman görünür -->
             <div class="doc-upload-box" id="dbox-pdf">
               <div class="doc-upload-label">📑 Poliçe / Sözleşme PDF</div>
               <div class="doc-upload-zone" onclick="document.getElementById('pe-file-pdf').click()" id="dzone-pdf">
@@ -1446,6 +1732,28 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
               </div>
               <input type="file" id="pe-file-pdf" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('pdf',this)">
               <div class="doc-preview" id="dpreview-pdf" style="display:none;"></div>
+            </div>
+            <!-- TAPU – yalnız Konut/İşyeri/DASK -->
+            <div class="doc-upload-box pe-konut-doc" id="dbox-tapu" style="display:none;">
+              <div class="doc-upload-label">🏠 Tapu Belgesi</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-tapu').click()" id="dzone-tapu">
+                <span class="doc-upload-icon">🏠</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-tapu" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('tapu',this)">
+              <div class="doc-preview" id="dpreview-tapu" style="display:none;"></div>
+            </div>
+            <!-- FATURA – yalnız Konut/İşyeri/DASK -->
+            <div class="doc-upload-box pe-konut-doc" id="dbox-fatura" style="display:none;">
+              <div class="doc-upload-label">🧾 Fatura</div>
+              <div class="doc-upload-zone" onclick="document.getElementById('pe-file-fatura').click()" id="dzone-fatura">
+                <span class="doc-upload-icon">🧾</span>
+                <span class="doc-upload-text">Dosya seçmek için tıklayın</span>
+                <span class="doc-upload-hint">PDF, JPG, PNG · Maks 5 MB</span>
+              </div>
+              <input type="file" id="pe-file-fatura" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload('fatura',this)">
+              <div class="doc-preview" id="dpreview-fatura" style="display:none;"></div>
             </div>
           </div>
         </div>
@@ -3537,16 +3845,446 @@ function showAcenteTab(tab){
   if(tab==='tahsilat-liste') renderAtList();
 }
 
-function peSetIslemTur(btn, val){
-  sv('pe-islemtur', val);
-  document.querySelectorAll('.pe-islem-btn').forEach(b=>{
-    b.classList.remove('btn-accent','btn-primary');
-    b.classList.add('btn-outline');
-  });
-  btn.classList.remove('btn-outline');
-  btn.classList.add('btn-accent');
+// ══════════════════════════════════════════════════
+// TÜRKİYE İL / İLÇE VERİSİ
+// ══════════════════════════════════════════════════
+const DASK_ILCELER={
+  'ADANA':['Aladağ','Ceyhan','Çukurova','Feke','İmamoğlu','Karaisalı','Karataş','Kozan','Pozantı','Saimbeyli','Sarıçam','Seyhan','Tufanbeyli','Yumurtalık','Yüreğir'],
+  'ADIYAMAN':['Besni','Çelikhan','Gerger','Gölbaşı','Kahta','Merkez','Samsat','Sincik','Tut'],
+  'AFYONKARAHİSAR':['Başmakçı','Bayat','Bolvadin','Çay','Çobanlar','Dazkırı','Dinar','Emirdağ','Evciler','Hocalar','İhsaniye','İscehisar','Kızılören','Merkez','Sandıklı','Sinanpaşa','Sultandağı','Şuhut'],
+  'AĞRI':['Diyadin','Doğubayazıt','Eleşkirt','Hamur','Merkez','Patnos','Taşlıçay','Tutak'],
+  'AKSARAY':['Ağaçören','Eskil','Gülağaç','Güzelyurt','Merkez','Ortaköy','Sarıyahşi','Sultanhanı'],
+  'AMASYA':['Göynücek','Gümüşhacıköy','Hamamözü','Merkez','Merzifon','Suluova','Taşova'],
+  'ANKARA':['Akyurt','Altındağ','Ayaş','Bala','Beypazarı','Çamlıdere','Çankaya','Çubuk','Elmadağ','Etimesgut','Evren','Gölbaşı','Güdül','Haymana','Kalecik','Kazan','Keçiören','Kızılcahamam','Mamak','Nallıhan','Polatlı','Pursaklar','Sincan','Şereflikoçhisar','Yenimahalle'],
+  'ANTALYA':['Akseki','Aksu','Alanya','Demre','Döşemealtı','Elmalı','Finike','Gazipaşa','Gündoğmuş','İbradı','Kaş','Kemer','Kepez','Konyaaltı','Korkuteli','Kumluca','Manavgat','Muratpaşa','Serik'],
+  'ARDAHAN':['Çıldır','Damal','Göle','Hanak','Merkez','Posof'],
+  'ARTVİN':['Ardanuç','Arhavi','Borçka','Hopa','Kemalpaşa','Merkez','Murgul','Şavşat','Yusufeli'],
+  'AYDIN':['Bozdoğan','Buharkent','Çine','Didim','Efeler','Germencik','İncirliova','Karacasu','Karpuzlu','Koçarlı','Köşk','Kuşadası','Kuyucak','Nazilli','Söke','Sultanhisar','Yenipazar'],
+  'BALIKESİR':['Altıeylül','Ayvalık','Balya','Bandırma','Bigadiç','Burhaniye','Dursunbey','Edremit','Erdek','Gömeç','Gönen','Havran','İvrindi','Karesi','Kepsut','Manyas','Marmara','Savaştepe','Sındırgı','Susurluk'],
+  'BARTIN':['Amasra','Kurucaşile','Merkez','Ulus'],
+  'BATMAN':['Beşiri','Gercüş','Hasankeyf','Kozluk','Merkez','Sason'],
+  'BAYBURT':['Aydıntepe','Demirözü','Merkez'],
+  'BİLECİK':['Bozüyük','Gölpazarı','İnhisar','Merkez','Osmaneli','Pazaryeri','Söğüt','Yenipazar'],
+  'BİNGÖL':['Adaklı','Genç','Karlıova','Kiğı','Merkez','Solhan','Yayladere','Yedisu'],
+  'BİTLİS':['Adilcevaz','Ahlat','Güroymak','Hizan','Merkez','Mutki','Tatvan'],
+  'BOLU':['Dörtdivan','Gerede','Göynük','Kıbrıscık','Mengen','Merkez','Mudurnu','Seben','Yeniçağa'],
+  'BURDUR':['Ağlasun','Altınyayla','Bucak','Çavdır','Çeltikçi','Gölhisar','Karamanlı','Kemer','Merkez','Tefenni','Yeşilova'],
+  'BURSA':['Büyükorhan','Gemlik','Gürsu','Harmancık','İnegöl','İznik','Karacabey','Keles','Kestel','Mudanya','Mustafakemalpaşa','Nilüfer','Orhaneli','Orhangazi','Osmangazi','Yıldırım','Yenişehir'],
+  'ÇANAKKALE':['Ayvacık','Bayramiç','Biga','Bozcaada','Çan','Eceabat','Ezine','Gelibolu','Gökçeada','Lapseki','Merkez','Yenice'],
+  'ÇANKIRI':['Atkaracalar','Bayramören','Çerkeş','Eldivan','Ilgaz','Kızılırmak','Korgun','Kurşunlu','Merkez','Orta','Şabanözü','Yapraklı'],
+  'ÇORUM':['Alaca','Bayat','Boğazkale','Dodurga','İskilip','Kargı','Laçin','Mecitözü','Merkez','Oğuzlar','Ortaköy','Osmancık','Sungurlu','Uğurludağ'],
+  'DENİZLİ':['Acıpayam','Babadağ','Baklan','Bekilli','Beyağaç','Bozkurt','Buldan','Çal','Çameli','Çardak','Çivril','Güney','Honaz','Kale','Merkezefendi','Pamukkale','Sarayköy','Serinhisar','Tavas'],
+  'DİYARBAKIR':['Bağlar','Bismil','Çermik','Çınar','Çüngüş','Dicle','Eğil','Ergani','Hani','Hazro','Kayapınar','Kocaköy','Kulp','Lice','Merkez','Silvan','Sur','Yenişehir'],
+  'DÜZCE':['Akçakoca','Cumayeri','Çilimli','Gölyaka','Gümüşova','Kaynaşlı','Merkez','Yığılca'],
+  'EDİRNE':['Enez','Havsa','İpsala','Keşan','Lalapaşa','Meriç','Merkez','Süloğlu','Uzunköprü'],
+  'ELAZIĞ':['Ağın','Alacakaya','Arıcak','Baskil','Karakoçan','Keban','Kovancılar','Maden','Merkez','Palu','Sivrice'],
+  'ERZİNCAN':['Çayırlı','İliç','Kemah','Kemaliye','Merkez','Otlukbeli','Refahiye','Tercan','Üzümlü'],
+  'ERZURUM':['Aşkale','Aziziye','Çat','Hınıs','Horasan','İspir','Karaçoban','Karayazı','Köprüköy','Merkez','Narman','Oltu','Olur','Palandöken','Pasinler','Pazaryolu','Şenkaya','Tekman','Tortum','Uzundere','Yakutiye'],
+  'ESKİŞEHİR':['Alpu','Beylikova','Çifteler','Günyüzü','Han','İnönü','Mahmudiye','Mihalgazi','Mihalıççık','Odunpazarı','Sarıcakaya','Seyitgazi','Sivrihisar','Tepebaşı'],
+  'GAZİANTEP':['Araban','İslahiye','Karkamış','Nizip','Nurdağı','Oğuzeli','Şahinbey','Şehitkamil','Yavuzeli'],
+  'GİRESUN':['Alucra','Bulancak','Çamoluk','Çanakçı','Dereli','Doğankent','Espiye','Eynesil','Görele','Güce','Keşap','Merkez','Piraziz','Şebinkarahisar','Tirebolu','Yağlıdere'],
+  'GÜMÜŞHANE':['Kelkit','Köse','Kürtün','Merkez','Şiran','Torul'],
+  'HAKKARİ':['Çukurca','Derecik','Merkez','Şemdinli','Yüksekova'],
+  'HATAY':['Altınözü','Antakya','Arsuz','Belen','Defne','Dörtyol','Erzin','Hassa','İskenderun','Kırıkhan','Kumlu','Payas','Reyhanlı','Samandağ','Yayladağı'],
+  'IĞDIR':['Aralık','Karakoyunlu','Merkez','Tuzluca'],
+  'ISPARTA':['Aksu','Atabey','Eğirdir','Gelendost','Gönen','Keçiborlu','Merkez','Senirkent','Sütçüler','Şarkikaraağaç','Uluborlu','Yalvaç','Yenişarbademli'],
+  'İSTANBUL':['Adalar','Arnavutköy','Ataşehir','Avcılar','Bağcılar','Bahçelievler','Bakırköy','Başakşehir','Bayrampaşa','Beşiktaş','Beykoz','Beylikdüzü','Beyoğlu','Büyükçekmece','Çatalca','Çekmeköy','Esenler','Esenyurt','Eyüpsultan','Fatih','Gaziosmanpaşa','Güngören','Kadıköy','Kağıthane','Kartal','Küçükçekmece','Maltepe','Pendik','Sancaktepe','Sarıyer','Silivri','Sultanbeyli','Sultangazi','Şile','Şişli','Tuzla','Ümraniye','Üsküdar','Zeytinburnu'],
+  'İZMİR':['Aliağa','Balçova','Bayındır','Bayraklı','Bergama','Beydağ','Bornova','Buca','Çeşme','Çiğli','Dikili','Foça','Gaziemir','Güzelbahçe','Karabağlar','Karaburun','Karşıyaka','Kemalpaşa','Kınık','Kiraz','Konak','Menderes','Menemen','Narlıdere','Ödemiş','Seferihisar','Selçuk','Tire','Torbalı','Urla'],
+  'KAHRAMANMARAŞ':['Afşin','Andırın','Çağlayancerit','Dulkadiroğlu','Ekinözü','Elbistan','Göksun','Merkez','Nurhak','Onikişubat','Pazarcık','Türkoğlu'],
+  'KARABÜK':['Eflani','Eskipazar','Merkez','Ovacık','Safranbolu','Yenice'],
+  'KARAMAN':['Ayrancı','Başyayla','Ermenek','Kazımkarabekir','Merkez','Sarıveliler'],
+  'KARS':['Akyaka','Arpaçay','Digor','Kağızman','Merkez','Sarıkamış','Selim','Susuz'],
+  'KASTAMONU':['Abana','Ağlı','Araç','Azdavay','Bozkurt','Çatalzeytin','Cide','Daday','Devrekani','Doğanyurt','Hanönü','İhsangazi','İnebolu','Küre','Merkez','Pınarbaşı','Seydiler','Şenpazar','Taşköprü','Tosya'],
+  'KAYSERİ':['Akkışla','Bünyan','Develi','Felahiye','Hacılar','İncesu','Kocasinan','Melikgazi','Özvatan','Pınarbaşı','Sarıoğlan','Sarız','Talas','Tomarza','Yahyalı','Yeşilhisar'],
+  'KIRIKKALE':['Bahşili','Balışeyh','Çelebi','Delice','Karakeçili','Keskin','Merkez','Sulakyurt','Yahşihan'],
+  'KIRKLARELİ':['Babaeski','Demirköy','Kofçaz','Lüleburgaz','Merkez','Pehlivanköy','Pınarhisar','Vize'],
+  'KIRŞEHİR':['Akçakent','Akpınar','Boztepe','Çiçekdağı','Kaman','Merkez','Mucur'],
+  'KİLİS':['Elbeyli','Merkez','Musabeyli','Polateli'],
+  'KOCAELİ':['Başiskele','Çayırova','Darıca','Derince','Dilovası','Gebze','Gölcük','İzmit','Kandıra','Karamürsel','Kartepe','Körfez'],
+  'KONYA':['Ahırlı','Akören','Akşehir','Altınekin','Beyşehir','Bozkır','Cihanbeyli','Çeltik','Çumra','Derbent','Derebucak','Doğanhisar','Emirgazi','Ereğli','Güneysınır','Hadim','Halkapınar','Hüyük','Ilgın','Kadınhanı','Karapınar','Karatay','Kulu','Meram','Sarayönü','Selçuklu','Seydişehir','Taşkent','Tuzlukçu','Yalıhüyük','Yunak'],
+  'KÜTAHYA':['Altıntaş','Aslanapa','Çavdarhisar','Domaniç','Dumlupınar','Emet','Gediz','Hisarcık','Merkez','Pazarlar','Simav','Şaphane','Tavşanlı'],
+  'MALATYA':['Akçadağ','Arapgir','Arguvan','Battalgazi','Darende','Doğanşehir','Doğanyol','Hekimhan','Kale','Kuluncak','Merkez','Pütürge','Yazıhan','Yeşilyurt'],
+  'MANİSA':['Ahmetli','Akhisar','Alaşehir','Demirci','Gölmarmara','Gördes','Kırkağaç','Köprübaşı','Kula','Merkez','Salihli','Sarıgöl','Saruhanlı','Selendi','Soma','Şehzadeler','Turgutlu','Yunusemre'],
+  'MARDİN':['Artuklu','Dargeçit','Derik','Kızıltepe','Mazıdağı','Merkez','Midyat','Nusaybin','Ömerli','Savur','Yeşilli'],
+  'MERSİN':['Akdeniz','Anamur','Aydıncık','Bozyazı','Çamlıyayla','Erdemli','Gülnar','Mezitli','Mut','Silifke','Tarsus','Toroslar','Yenişehir'],
+  'MUĞLA':['Bodrum','Dalaman','Datça','Fethiye','Kavaklıdere','Köyceğiz','Marmaris','Menteşe','Milas','Ortaca','Seydikemer','Ula','Yatağan'],
+  'MUŞ':['Bulanık','Hasköy','Korkut','Malazgirt','Merkez','Varto'],
+  'NEVŞEHİR':['Acıgöl','Avanos','Derinkuyu','Gülşehir','Hacıbektaş','Kozaklı','Merkez','Ürgüp'],
+  'NİĞDE':['Altunhisar','Bor','Çamardı','Çiftlik','Merkez','Ulukışla'],
+  'ORDU':['Akkuş','Altınordu','Aybastı','Çamaş','Çatalpınar','Çaybaşı','Fatsa','Gölköy','Gülyalı','Gürgentepe','İkizce','Kabadüz','Kabataş','Korgan','Kumru','Mesudiye','Perşembe','Ulubey','Ünye'],
+  'OSMANİYE':['Bahçe','Düziçi','Hasanbeyli','Kadirli','Merkez','Sumbas','Toprakkale'],
+  'RİZE':['Ardeşen','Çamlıhemşin','Çayeli','Derepazarı','Fındıklı','Güneysu','Hemşin','İkizdere','İyidere','Kalkandere','Merkez','Pazar'],
+  'SAKARYA':['Adapazarı','Akyazı','Arifiye','Erenler','Ferizli','Geyve','Hendek','Karapürçek','Karasu','Kaynarca','Kocaali','Mithatpaşa','Pamukova','Sapanca','Serdivan','Söğütlü','Taraklı'],
+  'SAMSUN':['19 Mayıs','Alaçam','Asarcık','Atakum','Ayvacık','Bafra','Canik','Çarşamba','Havza','İlkadım','Kavak','Ladik','Merkez','Ondokuzmayıs','Salıpazarı','Tekkeköy','Terme','Vezirköprü','Yakakent'],
+  'SİİRT':['Baykan','Eruh','Kurtalan','Merkez','Pervari','Şirvan','Tillo'],
+  'SİNOP':['Ayancık','Boyabat','Dikmen','Durağan','Erfelek','Gerze','Merkez','Saraydüzü','Türkeli'],
+  'SİVAS':['Akıncılar','Altınyayla','Divriği','Doğanşar','Gemerek','Gölova','Gürun','Hafik','İmranlı','Kangal','Koyulhisar','Merkez','Suşehri','Şarkışla','Ulaş','Yıldızeli','Zara'],
+  'ŞANLIURFA':['Akçakale','Birecik','Bozova','Ceylanpınar','Eyyübiye','Halfeti','Haliliye','Harran','Hilvan','Karaköprü','Merkez','Siverek','Suruç','Viranşehir'],
+  'ŞIRNAK':['Beytüşşebap','Cizre','Güçlükonak','İdil','Merkez','Silopi','Uludere'],
+  'TEKİRDAĞ':['Çerkezköy','Çorlu','Ergene','Hayrabolu','Kapaklı','Malkara','Marmaraereğlisi','Merkez','Muratlı','Saray','Süleymanpaşa','Şarköy'],
+  'TOKAT':['Almus','Artova','Başçiftlik','Erbaa','Merkez','Niksar','Pazar','Reşadiye','Sulusaray','Turhal','Yeşilyurt','Zile'],
+  'TRABZON':['Akçaabat','Araklı','Arsin','Beşikdüzü','Çarşıbaşı','Çaykara','Dernekpazarı','Düzköy','Hayrat','Köprübaşı','Maçka','Merkez','Of','Ortahisar','Sürmene','Şalpazarı','Tonya','Vakfıkebir','Yomra'],
+  'TUNCELİ':['Çemişgezek','Hozat','Mazgirt','Merkez','Nazımiye','Ovacık','Pertek','Pülümür'],
+  'UŞAK':['Banaz','Eşme','Karahallı','Merkez','Sivaslı','Ulubey'],
+  'VAN':['Bahçesaray','Başkale','Çaldıran','Çatak','Edremit','Erciş','Gevaş','Gürpınar','İpekyolu','Merkez','Muradiye','Özalp','Saray','Tuşba'],
+  'YALOVA':['Altınova','Armutlu','Çiftlikköy','Çınarcık','Merkez','Termal'],
+  'YOZGAT':['Akdağmadeni','Aydıncık','Boğazlıyan','Çandır','Çayıralan','Çekerek','Kadışehri','Merkez','Saraykent','Sarıkaya','Şefaatli','Sorgun','Yenifakılı','Yerköy'],
+  'ZONGULDAK':['Alaplı','Çaycuma','Devrek','Ereğli','Gökçebey','Kilimli','Kozlu','Merkez']
+};
+
+const _daskDocsTemp={tapu:null,tc:null,pdf:null,fatura:null};
+
+
+function handleDaskDoc(type,input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>5*1024*1024){toast('Dosya 5 MB\'dan büyük olamaz!','error');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    _daskDocsTemp[type]={name:file.name,data:e.target.result,mime:file.type};
+    const zone=byId('dzone-dask-'+type);const preview=byId('dpreview-dask-'+type);
+    if(zone){zone.classList.add('has-file');const t=zone.querySelector('.doc-upload-text');if(t)t.textContent='✅ '+file.name;}
+    if(preview){
+      preview.style.display='block';
+      const isImg=file.type.startsWith('image/');
+      preview.innerHTML='<div class="doc-preview-name">📎 '+file.name+'</div>'
+        +(isImg?'<img src="'+e.target.result+'" style="max-width:100%;max-height:100px;border-radius:4px;margin-top:4px;">':'<div style="font-size:10px;color:var(--muted);margin-top:4px;">PDF Dosyası</div>')
+        +'<div style="display:flex;gap:6px;margin-top:6px;">'
+        +'<button class="btn btn-outline btn-xs" onclick="previewDaskDoc(\''+type+'\')">👁️ Görüntüle</button>'
+        +'<button class="btn btn-danger btn-xs" onclick="removeDaskDoc(\''+type+'\')">🗑️ Kaldır</button></div>';
+    }
+    toast(file.name+' yüklendi','success');
+  };
+  reader.readAsDataURL(file);
 }
+function previewDaskDoc(type){
+  const doc=_daskDocsTemp[type];if(!doc){toast('Belge bulunamadı','error');return;}
+  if(doc.mime&&doc.mime.startsWith('image/')){
+    const w=window.open('','_blank');
+    w.document.write('<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+doc.data+'" style="max-width:100%;max-height:100vh;"></body></html>');
+  }else{
+    const byteStr=atob(doc.data.split(',')[1]);const ab=new ArrayBuffer(byteStr.length);const ia=new Uint8Array(ab);for(let i=0;i<byteStr.length;i++)ia[i]=byteStr.charCodeAt(i);
+    const blob=new Blob([ab],{type:'application/pdf'});const url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),15000);
+  }
+}
+function removeDaskDoc(type){
+  _daskDocsTemp[type]=null;
+  const zone=byId('dzone-dask-'+type);const preview=byId('dpreview-dask-'+type);const inp=byId('pe-file-dask-'+type);
+  if(zone){zone.classList.remove('has-file');const t=zone.querySelector('.doc-upload-text');if(t)t.textContent='Dosya seçmek için tıklayın';}
+  if(preview){preview.style.display='none';preview.innerHTML='';}
+  if(inp)inp.value='';
+  toast('Belge kaldırıldı','');
+}
+function resetDaskForm(){
+  // Tüm metin alanlarını sıfırla
+  ['dask-bina-no','dask-daire','dask-mahalle','dask-cadde','dask-sokak','dask-tam-adres',
+   'dask-insaat-yili','dask-m2','dask-ada','dask-pafta','dask-toplam-kat']
+  .forEach(function(id){const el=byId(id);if(el)el.value='';});
+  // Select alanlarını sıfırla
+  ['dask-bina-yapisi','dask-kat','dask-hasar']
+  .forEach(function(id){const el=byId(id);if(el)el.selectedIndex=0;});
+  // İl/ilçe arama inputlarını sıfırla
+  const ilInp=byId('dask-il-search');if(ilInp)ilInp.value='';
+  const ilceInp=byId('dask-ilce-search');if(ilceInp){ilceInp.value='';ilceInp.disabled=true;ilceInp.placeholder='Önce il seçin...';}
+  sv('dask-il','');sv('dask-ilce','');
+  ['tapu','tc','pdf','fatura'].forEach(function(t){removeDaskDoc(t);});
+}
+
+// ── Yeni arama motorlu DASK adres fonksiyonları ──
+function daskIlSearch(q){
+  const dd=byId('dask-il-dd');if(!dd)return;
+  const iller=Object.keys(TR_ILCELER).sort();
+  const filtered=q?iller.filter(function(il){return il.toLowerCase().includes(q.toLowerCase());}):iller;
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=filtered.map(function(il){
+    return '<div onclick="daskIlSec(\''+il+'\')" style="padding:7px 12px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">'+il+'</div>';
+  }).join('');
+}
+function daskIlSec(il){
+  sv('dask-il',il);
+  const inp=byId('dask-il-search');if(inp)inp.value=il;
+  const dd=byId('dask-il-dd');if(dd)dd.style.display='none';
+  // İlçe arama inputunu aktif et
+  const ilceInp=byId('dask-ilce-search');
+  if(ilceInp){ilceInp.disabled=false;ilceInp.value='';ilceInp.placeholder='🔍 İlçe ara...';}
+  sv('dask-ilce','');
+  // Mahalle/cadde/sokak/bina/kat temizle (direkt input)
+  ['dask-mahalle','dask-cadde','dask-sokak','dask-bina-no','dask-daire'].forEach(function(id){
+    const el=byId(id);if(el)el.value='';
+  });
+  daskUpdateAdres();
+}
+function daskIlceSearch(q){
+  const il=gv('dask-il');if(!il)return;
+  const dd=byId('dask-ilce-dd');if(!dd)return;
+  const ilceler=(TR_ILCELER[il]||TR_ILCELER[il.toUpperCase()]||['Merkez','Diğer']).slice().sort();
+  const filtered=q?ilceler.filter(function(ilce){return ilce.toLowerCase().includes(q.toLowerCase());}):ilceler;
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=filtered.map(function(ilce){
+    return '<div onclick="daskIlceSec(\''+ilce+'\')" style="padding:7px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">'+ilce+'</div>';
+  }).join('');
+}
+function daskIlceSec(ilce){
+  sv('dask-ilce',ilce);
+  const inp=byId('dask-ilce-search');if(inp)inp.value=ilce;
+  const dd=byId('dask-ilce-dd');if(dd)dd.style.display='none';
+  // Mahalle input'u focus ile hazırla
+  const mahInp=byId('dask-mahalle');
+  if(mahInp){mahInp.placeholder='Mahalle adı yazın...';}
+  daskUpdateAdres();
+}
+// Artık kullanılmayan eski arama fonksiyonları (stub olarak bırakıldı)
+function daskMahalleSearch(){}
+function daskMahalleSec(mah){ const el=byId('dask-mahalle');if(el)el.value=mah; daskUpdateAdres(); }
+function daskCaddeSearch(){}
+function daskCaddeSec(cadde){ const el=byId('dask-cadde');if(el)el.value=cadde; daskUpdateAdres(); }
+function daskIlChange(){}
+function daskIlceChange(){}
+function daskMahalleChange(){ daskUpdateAdres(); }
+function daskUpdateAdres(){
+  const il   = gv('dask-il')||'';
+  const ilce = gv('dask-ilce')||'';
+  const mah  = (byId('dask-mahalle')  ? byId('dask-mahalle').value  : '').trim();
+  const cadde= (byId('dask-cadde')    ? byId('dask-cadde').value    : '').trim();
+  const sokak= (byId('dask-sokak')    ? byId('dask-sokak').value    : '').trim();
+  const bina = (byId('dask-bina-no')  ? byId('dask-bina-no').value  : '').trim();
+  const kat  = (byId('dask-daire')    ? byId('dask-daire').value    : '').trim();
+  const parts=[];
+  if(il)   parts.push(il);
+  if(ilce) parts.push(ilce);
+  if(mah)  parts.push(mah);
+  if(cadde)parts.push(cadde);
+  if(sokak)parts.push('Sk:'+sokak);
+  if(bina) parts.push('No:'+bina);
+  if(kat)  parts.push(kat);
+  const adresEl=byId('dask-tam-adres');
+  if(adresEl) adresEl.value=parts.join(', ');
+}
+
+// ── Seyahat ülke arama ──
+function peUlkeSearch(dir, q){
+  const ddId='pe-ulke-'+dir+'-dd';
+  const dd=byId(ddId);if(!dd)return;
+  const filtered=q?ULKELER.filter(function(u){return u.toLowerCase().includes(q.toLowerCase());}):ULKELER.slice(0,30);
+  if(!filtered.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=filtered.map(function(u){
+    const safe=u.replace(/'/g,"&#39;");
+    return '<div onclick="peUlkeSec(\''+dir+'\',\''+safe+'\')" style="padding:7px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">'+u+'</div>';
+  }).join('');
+}
+function peUlkeSec(dir, ulke){
+  sv('pe-seyahat-ulke-'+dir, ulke);
+  const inp=byId('pe-seyahat-ulke-'+dir+'-search');if(inp)inp.value=ulke;
+  const dd=byId('pe-ulke-'+dir+'-dd');if(dd)dd.style.display='none';
+  const secili=byId('pe-ulke-'+dir+'-secili');
+  if(secili){secili.textContent='✓ '+ulke;secili.style.color='var(--success)';}
+}
+function peSeyahatUlkeleriDoldur(){
+  const cikisInp=byId('pe-seyahat-ulke-cikis-search');
+  if(cikisInp&&!cikisInp.value){cikisInp.value='Türkiye';sv('pe-seyahat-ulke-cikis','Türkiye');}
+}
+
+// ── Ek belge yükleyici (sağlık, seyahat türleri için) ──
+if(!window._extraDocs) window._extraDocs={};
+function handleExtraDoc(key, inp){
+  if(!inp.files||!inp.files[0])return;
+  const file=inp.files[0];
+  if(file.size>5*1024*1024){toast('Dosya max 5 MB!','error');return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    window._extraDocs[key]={name:file.name,type:file.type,data:e.target.result};
+    const prev=byId('dpreview-'+key);
+    if(prev){prev.style.display='flex';prev.innerHTML='<span style="font-size:11px;color:var(--success);">✓ '+file.name+'</span><button onclick="delete window._extraDocs[\''+key+'\'];this.parentElement.style.display=\'none\';" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;">✕</button>';}
+    const zone=byId('dzone-'+key);if(zone)zone.style.borderColor='var(--success)';
+    toast(file.name+' yüklendi','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── DASK/adres/ülke dropdown dışına tıklayınca kapat ──
+document.addEventListener('click',function(e){
+  ['dask-il','dask-ilce','dask-mahalle','dask-cadde'].forEach(function(key){
+    const dd=byId(key+'-dd');const inp=byId(key+'-search');
+    if(dd&&inp&&!inp.contains(e.target)&&!dd.contains(e.target)) dd.style.display='none';
+  });
+  ['cikis','gidis'].forEach(function(dir){
+    const dd=byId('pe-ulke-'+dir+'-dd');
+    const inp=byId('pe-seyahat-ulke-'+dir+'-search');
+    if(dd&&inp&&!inp.contains(e.target)&&!dd.contains(e.target)) dd.style.display='none';
+  });
+});
+
+function peSetIslemTur(btn,val){
+  sv('pe-islemtur',val);
+  document.querySelectorAll('.pe-islem-btn').forEach(function(b){
+    b.classList.remove('btn-accent','btn-primary');b.classList.add('btn-outline');
+  });
+  btn.classList.remove('btn-outline');btn.classList.add('btn-accent');
+
+  // Tür grupları
+  const ARAC_TURLERI    = ['Trafik','Kasko'];
+  const KONUT_TURLERI   = ['Konut','İşyeri','DASK'];
+  const SAGLIK_TURLERI  = ['Tamamlayıcı Sağlık (TSS)','Sağlık','Hayat'];
+  const SEYAHAT_TURLERI = ['Seyahat'];
+  const FERDI_TURLERI   = ['Ferdi Kaza','Diğer'];
+
+  const isArac    = ARAC_TURLERI.includes(val);
+  const isKonut   = KONUT_TURLERI.includes(val);
+  const isSaglik  = SAGLIK_TURLERI.includes(val);
+  const isSeyahat = SEYAHAT_TURLERI.includes(val);
+
+  // ── Konut/DASK/İşyeri bloğu ──
+  const konutBlok = byId('pe-dask-block');
+  if(konutBlok) konutBlok.style.display = isKonut ? '' : 'none';
+
+  // ── Sağlık/TSS/Hayat bloğu ──
+  const saglikBlok = byId('pe-saglik-blok');
+  if(saglikBlok) saglikBlok.style.display = isSaglik ? '' : 'none';
+
+  // ── Seyahat bloğu ──
+  const seyahatBlok = byId('pe-seyahat-blok');
+  if(seyahatBlok) seyahatBlok.style.display = isSeyahat ? '' : 'none';
+  if(isSeyahat) peSeyahatUlkeleriDoldur();
+
+  // ── Araç alanları (plaka, ruhsat, araç cinsi, marka, model) ──
+  ['araccins','aracmarka','modelyili','plaka','ruhsat'].forEach(function(key){
+    const el = document.querySelector('[data-field-key="'+key+'"]');
+    if(el) el.style.display = isArac ? '' : 'none';
+  });
+
+  // ── Belge görünürlüğü ──
+  // Standart belgeler bloğu: Konut/İşyeri/DASK'ta gizle (kendi belge bölümü var)
+  const standartBelgeler = byId('pe-standart-belgeler');
+  if(standartBelgeler) standartBelgeler.style.display = isKonut ? 'none' : '';
+  // Ruhsat: sadece Trafik/Kasko
+  const ruhsatBox = byId('dbox-ruhsat');
+  if(ruhsatBox) ruhsatBox.style.display = isArac ? '' : 'none';
+  // Tapu + Fatura: sadece Konut/İşyeri/DASK (standart belgeler içinde, kullanılmıyor artık)
+  document.querySelectorAll('.pe-konut-doc').forEach(function(el){
+    el.style.display = isKonut ? '' : 'none';
+  });
+
+  // ── Konut başlık ──
+  const ikonMap = {'Konut':'🏡','İşyeri':'🏢','DASK':'🏠'};
+  const baslikMap = {'Konut':'Konut Sigortası','İşyeri':'İşyeri Sigortası','DASK':'DASK – Zorunlu Deprem Sigortası'};
+  const ikon  = byId('pe-konut-icon');     if(ikon)  ikon.textContent  = ikonMap[val]  || '🏠';
+  const btext = byId('pe-konut-baslik-text'); if(btext) btext.textContent = baslikMap[val] || val;
+
+  // ── Sağlık başlık ──
+  const saglikIkonMap  = {'Tamamlayıcı Sağlık (TSS)':'💊','Sağlık':'❤️','Hayat':'🌿'};
+  const saglikBaslikMap = {'Tamamlayıcı Sağlık (TSS)':'Tamamlayıcı Sağlık Sigortası (TSS)','Sağlık':'Sağlık Sigortası','Hayat':'Hayat Sigortası'};
+  const si = byId('pe-saglik-icon');        if(si) si.textContent  = saglikIkonMap[val]   || '❤️';
+  const sbk = byId('pe-saglik-baslik-text'); if(sbk) sbk.textContent = saglikBaslikMap[val] || val;
+}
+
+// ── Seyahat ülke listesi ──
+const ULKELER = ['Türkiye','Almanya','Fransa','İngiltere','İtalya','İspanya','Hollanda','Belçika','Avusturya','İsviçre','İsveç','Norveç','Danimarka','Finlandiya','Polonya','Çek Cumhuriyeti','Macaristan','Romanya','Bulgaristan','Yunanistan','Portekiz','Hırvatistan','Sırbistan','Bosna Hersek','Arnavutluk','Kuzey Makedonya','Karadağ','Kosova','Slovenya','Slovakya','Ukrayna','Moldova','Belarus','Rusya','Gürcistan','Ermenistan','Azerbaycan','Kazakistan','Özbekistan','Türkmenistan','Kırgızistan','Tacikistan','Afganistan','Pakistan','Hindistan','Çin','Japonya','Güney Kore','Kuzey Kore','Vietnam','Tayland','Endonezya','Malezya','Singapur','Filipinler','Myanmar','Kamboçya','Laos','Moğolistan','Nepal','Sri Lanka','Bangladeş','Maldivler','ABD','Kanada','Meksika','Brezilya','Arjantin','Şili','Kolombiya','Peru','Venezuela','Ekvador','Bolivya','Paraguay','Uruguay','Küba','Dominik Cumhuriyeti','Jamaika','Porto Riko','Mısır','Fas','Cezayir','Tunus','Libya','Sudan','Etiyopya','Kenya','Nijerya','Gana','Senegal','Kamerun','Tanzanya','Mozambik','Zimbabve','Güney Afrika','Madagaskar','Birleşik Arap Emirlikleri','Suudi Arabistan','Katar','Kuveyt','Bahreyn','Ürdün','İsrail','Lübnan','Suriye','Irak','İran','Umman','Yemen','Avustralya','Yeni Zelanda','Fiji','Diğer'];
+
 // Poliçe Türü buton seçici
+// ══════════════════════════════════════════════════
+// TÜRKİYE İL/İLÇE/MAHALLE VERİSİ
+// ══════════════════════════════════════════════════
+const TR_ILCELER = {
+  'ADANA':['Aladağ','Ceyhan','Çukurova','Feke','İmamoğlu','Karaisalı','Karataş','Kozan','Pozantı','Saimbeyli','Sarıçam','Seyhan','Tufanbeyli','Yumurtalık','Yüreğir'],
+  'ANKARA':['Akyurt','Altındağ','Ayaş','Bala','Beypazarı','Çamlıdere','Çankaya','Çubuk','Elmadağ','Etimesgut','Evren','Gölbaşı','Güdül','Haymana','Kalecik','Kazan','Keçiören','Kızılcahamam','Mamak','Nallıhan','Polatlı','Pursaklar','Sincan','Şereflikoçhisar','Yenimahalle'],
+  'İSTANBUL':['Adalar','Arnavutköy','Ataşehir','Avcılar','Bağcılar','Bahçelievler','Bakırköy','Başakşehir','Bayrampaşa','Beşiktaş','Beykoz','Beylikdüzü','Beyoğlu','Büyükçekmece','Çatalca','Çekmeköy','Esenler','Esenyurt','Eyüpsultan','Fatih','Gaziosmanpaşa','Güngören','Kadıköy','Kağıthane','Kartal','Küçükçekmece','Maltepe','Pendik','Sancaktepe','Sarıyer','Şile','Silivri','Şişli','Sultanbeyli','Sultangazi','Tuzla','Ümraniye','Üsküdar','Zeytinburnu'],
+  'İZMİR':['Aliağa','Balçova','Bayındır','Bayraklı','Bergama','Beydağ','Bornova','Buca','Çeşme','Çiğli','Dikili','Foça','Gaziemir','Güzelbahçe','Karabağlar','Karaburun','Karşıyaka','Kemalpaşa','Kınık','Kiraz','Konak','Menderes','Menemen','Narlıdere','Ödemiş','Seferihisar','Selçuk','Tire','Torbalı','Urla'],
+  'BURSA':['Büyükorhan','Gemlik','Gürsu','Harmancık','İnegöl','İznik','Karacabey','Keles','Kestel','Mudanya','Mustafakemalpaşa','Nilüfer','Orhaneli','Orhangazi','Osmangazi','Yenişehir','Yıldırım'],
+  'ANTALYA':['Akseki','Aksu','Alanya','Demre','Döşemealtı','Elmalı','Finike','Gazipaşa','Gündoğmuş','İbradı','Kaş','Kemer','Kepez','Konyaaltı','Korkuteli','Kumluca','Manavgat','Muratpaşa','Serik'],
+  'KOCAELİ':['Başiskele','Çayırova','Darıca','Derince','Dilovası','Gebze','Gölcük','İzmit','Kandıra','Karamürsel','Kartepe','Körfez'],
+  'GAZİANTEP':['Araban','İslahiye','Karkamış','Nizip','Nurdağı','Oğuzeli','Şahinbey','Şehitkamil','Yavuzeli'],
+  'KAYSERİ':['Akkışla','Bünyan','Develi','Felahiye','Hacılar','İncesu','Kocasinan','Melikgazi','Özvatan','Pınarbaşı','Sarıoğlan','Sarız','Talas','Tomarza','Yahyalı','Yeşilhisar'],
+  'KONYA':['Ahırlı','Akören','Akşehir','Altınekin','Beyşehir','Bozkır','Cihanbeyli','Çeltik','Çumra','Derbent','Derebucak','Doğanhisar','Emirgazi','Ereğli','Güneysınır','Hadim','Halkapınar','Hüyük','Ilgın','Kadınhanı','Karapınar','Karatay','Kulu','Meram','Sarayönü','Selçuklu','Seydişehir','Taşkent','Tuzlukçu','Yalıhüyük','Yunak'],
+  'ADIYAMAN':['Besni','Çelikhan','Gerger','Gölbaşı','Kahta','Merkez','Samsat','Sincik','Tut'],
+  'AFYONKARAHİSAR':['Başmakçı','Bayat','Bolvadin','Çay','Çobanlar','Dazkırı','Dinar','Emirdağ','Evciler','Hocalar','İhsaniye','İscehisar','Kızılören','Merkez','Sandıklı','Sinanpaşa','Sultandağı','Şuhut'],
+  'AĞRI':['Diyadin','Doğubayazıt','Eleşkirt','Hamur','Merkez','Patnos','Taşlıçay','Tutak'],
+  'AKSARAY':['Ağaçören','Eskil','Gülağaç','Güzelyurt','Merkez','Ortaköy','Sarıyahşi','Sultanhanı'],
+  'AMASYA':['Göynücek','Gümüşhacıköy','Hamamözü','Merkez','Merzifon','Suluova','Taşova'],
+  'ARDAHAN':['Çıldır','Damal','Göle','Hanak','Merkez','Posof'],
+  'ARTVİN':['Ardanuç','Arhavi','Borçka','Hopa','Merkez','Murgul','Şavşat','Yusufeli'],
+  'AYDIN':['Bozdoğan','Buharkent','Çine','Didim','Efeler','Germencik','İncirliova','Karacasu','Karpuzlu','Koçarlı','Köşk','Kuşadası','Kuyucak','Merkez','Nazilli','Söke','Sultanhisar','Yenipazar'],
+  'BALIKESİR':['Altıeylül','Ayvalık','Balya','Bandırma','Bigadiç','Burhaniye','Dursunbey','Edremit','Erdek','Gömeç','Gönen','Havran','İvrindi','Karesi','Kepsut','Manyas','Marmara','Savaştepe','Sındırgı','Susurluk'],
+  'BARTIN':['Arit','Kurucaşile','Merkez','Ulus'],
+  'BATMAN':['Beşiri','Gercüş','Hasankeyf','Kozluk','Merkez','Sason'],
+  'BAYBURT':['Aydıntepe','Demirözü','Merkez'],
+  'BİLECİK':['Bozüyük','Gölpazarı','İnhisar','Merkez','Osmaneli','Pazaryeri','Söğüt','Yenipazar'],
+  'BİNGÖL':['Adaklı','Genç','Karlıova','Kiğı','Merkez','Solhan','Yayladere','Yedisu'],
+  'BİTLİS':['Adilcevaz','Ahlat','Güroymak','Hizan','Merkez','Mutki','Tatvan'],
+  'BOLU':['Dörtdivan','Gerede','Göynük','Kıbrıscık','Mengen','Merkez','Mudurnu','Seben','Yeniçağa'],
+  'BURDUR':['Ağlasun','Altınyayla','Bucak','Çavdır','Çeltikçi','Gölhisar','Karamanlı','Kemer','Merkez','Tefenni','Yeşilova'],
+  'ÇANAKKALE':['Ayvacık','Bayramiç','Biga','Bozcaada','Çan','Eceabat','Ezine','Gelibolu','Gökçeada','Lapseki','Merkez','Yenice'],
+  'ÇANKIRI':['Atkaracalar','Bayramören','Çerkeş','Eldivan','Ilgaz','Kızılırmak','Korgun','Kurşunlu','Merkez','Orta','Şabanözü','Yapraklı'],
+  'ÇORUM':['Alaca','Bayat','Boğazkale','Dodurga','İskilip','Kargı','Laçin','Mecitözü','Merkez','Oğuzlar','Ortaköy','Osmancık','Sungurlu','Uğurludağ'],
+  'DENİZLİ':['Acıpayam','Babadağ','Baklan','Bekilli','Beyağaç','Bozkurt','Buldan','Çal','Çameli','Çardak','Çivril','Güney','Honaz','Kale','Merkezefendi','Pamukkale','Sarayköy','Serinhisar','Tavas'],
+  'DİYARBAKIR':['Bağlar','Bismil','Çermik','Çınar','Çüngüş','Dicle','Eğil','Ergani','Hani','Hazro','Kayapınar','Kocaköy','Kulp','Lice','Silvan','Sur','Yenişehir'],
+  'DÜZCE':['Akçakoca','Cumayeri','Çilimli','Gölyaka','Gümüşova','Kaynaşlı','Merkez','Yığılca'],
+  'EDİRNE':['Enez','Havsa','İpsala','Keşan','Lalapaşa','Meriç','Merkez','Süloğlu','Uzunköprü'],
+  'ELAZIĞ':['Ağın','Alacakaya','Arıcak','Baskil','Karakoçan','Keban','Kovancılar','Maden','Merkez','Palu','Sivrice'],
+  'ERZİNCAN':['Çayırlı','İliç','Kemah','Kemaliye','Merkez','Otlukbeli','Refahiye','Tercan','Üzümlü'],
+  'ERZURUM':['Aşkale','Aziziye','Çat','Hınıs','Horasan','İspir','Karaçoban','Karayazı','Köprüköy','Merkez','Narman','Oltu','Olur','Palandöken','Pasinler','Pazaryolu','Şenkaya','Tekman','Tortum','Uzundere','Yakutiye'],
+  'ESKİŞEHİR':['Alpu','Beylikova','Çifteler','Günyüzü','Han','İnönü','Mahmudiye','Mihalgazi','Mihallıççık','Odunpazarı','Sarıcakaya','Seyitgazi','Sivrihisar','Tepebaşı'],
+  'GİRESUN':['Alucra','Bulancak','Çamoluk','Çanakçı','Dereli','Doğankent','Espiye','Eynesil','Görele','Güce','Keşap','Merkez','Piraziz','Şebinkarahisar','Tirebolu','Yağlıdere'],
+  'GÜMÜŞHANE':['Kelkit','Köse','Kürtün','Merkez','Şiran','Torul'],
+  'HAKKARİ':['Çukurca','Derecik','Merkez','Şemdinli','Yüksekova'],
+  'HATAY':['Altınözü','Antakya','Arsuz','Belen','Defne','Dörtyol','Erzin','Hassa','İskenderun','Kırıkhan','Kumlu','Payas','Reyhanlı','Samandağ','Yayladağı'],
+  'IĞDIR':['Aralık','Karakoyunlu','Merkez','Tuzluca'],
+  'ISPARTA':['Aksu','Atabey','Eğirdir','Gelendost','Gönen','Keçiborlu','Merkez','Senirkent','Sütçüler','Şarkikaraağaç','Uluborlu','Yalvaç','Yenişarbademli'],
+  'KAHRAMANMARAŞ':['Afşin','Andırın','Çağlayancerit','Dulkadiroğlu','Ekinözü','Elbistan','Göksun','Nurhak','Onikişubat','Pazarcık','Türkoğlu'],
+  'KARABÜK':['Eflani','Eskipazar','Merkez','Ovacık','Safranbolu','Yenice'],
+  'KARAMAN':['Ayrancı','Başyayla','Ermenek','Kazımkarabekir','Merkez','Sarıveliler'],
+  'KARS':['Akyaka','Arpaçay','Digor','Kağızman','Merkez','Sarıkamış','Selim','Susuz'],
+  'KASTAMONU':['Abana','Ağlı','Araç','Azdavay','Bozkurt','Cide','Çatalzeytin','Daday','Devrekani','Doğanyurt','Hanönü','İhsangazi','İnebolu','Küre','Merkez','Pınarbaşı','Seydiler','Şenpazar','Taşköprü','Tosya'],
+  'KIRIKKALE':['Bahşılı','Balışeyh','Çelebi','Delice','Karakeçili','Keskin','Merkez','Sulakyurt','Yahşihan'],
+  'KIRKLARELİ':['Babaeski','Demirköy','Kofçaz','Lüleburgaz','Merkez','Pehlivanköy','Pınarhisar','Vize'],
+  'KIRŞEHİR':['Akçakent','Akpınar','Boztepe','Çiçekdağı','Kaman','Merkez','Mucur'],
+  'KİLİS':['Elbeyli','Merkez','Musabeyli','Polateli'],
+  'KÜTAHYA':['Altıntaş','Aslanapa','Çavdarhisar','Domaniç','Dumlupınar','Emet','Gediz','Hisarcık','Merkez','Pazarlar','Şaphane','Simav','Tavşanlı'],
+  'MALATYA':['Akçadağ','Arapgir','Arguvan','Battalgazi','Darende','Doğanşehir','Doğanyol','Hekimhan','Kale','Kuluncak','Pütürge','Yazıhan','Yeşilyurt'],
+  'MANİSA':['Ahmetli','Akhisar','Alaşehir','Demirci','Gölmarmara','Gördes','Kırkağaç','Köprübaşı','Kula','Merkez','Salihli','Sarıgöl','Saruhanlı','Selendi','Soma','Şehzadeler','Turgutlu','Yunusemre'],
+  'MARDİN':['Artuklu','Dargeçit','Derik','Kızıltepe','Mazıdağı','Merkez','Midyat','Nusaybin','Ömerli','Savur','Yeşilli'],
+  'MERSİN':['Akdeniz','Anamur','Aydıncık','Bozyazı','Çamlıyayla','Erdemli','Gülnar','Mezitli','Mut','Silifke','Tarsus','Toroslar','Yenişehir'],
+  'MUĞLA':['Bodrum','Dalaman','Datça','Fethiye','Kavaklıdere','Köyceğiz','Marmaris','Menteşe','Milas','Ortaca','Seydikemer','Ula','Yatağan'],
+  'MUŞ':['Bulanık','Hasköy','Korkut','Malazgirt','Merkez','Varto'],
+  'NEVŞEHİR':['Acıgöl','Avanos','Derinkuyu','Gülşehir','Hacıbektaş','Kozaklı','Merkez','Ürgüp'],
+  'NİĞDE':['Altunhisar','Bor','Çamardı','Çiftlik','Merkez','Ulukışla'],
+  'ORDU':['Akkuş','Altınordu','Aybastı','Çamaş','Çatalpınar','Çaybaşı','Fatsa','Gölköy','Gülyalı','Gürgentepe','İkizce','Kabadüz','Kabataş','Korgan','Kumru','Mesudiye','Perşembe','Ulubey','Ünye'],
+  'OSMANİYE':['Bahçe','Düziçi','Hasanbeyli','Kadirli','Merkez','Sumbas','Toprakkale'],
+  'RİZE':['Ardeşen','Çamlıhemşin','Çayeli','Derepazarı','Fındıklı','Güneysu','Hemşin','İkizdere','İyidere','Kalkandere','Merkez','Pazar'],
+  'SAKARYA':['Adapazarı','Akyazı','Arifiye','Erenler','Ferizli','Geyve','Hendek','Karapürçek','Karasu','Kaynarca','Kocaali','Mithatpaşa','Pamukova','Sapanca','Serdivan','Söğütlü','Taraklı'],
+  'SAMSUN':['Alaçam','Asarcık','Atakum','Ayvacık','Bafra','Canik','Çarşamba','Havza','İlkadım','Kavak','Ladik','Merkez','Ondokuzmayıs','Salıpazarı','Tekkeköy','Terme','Vezirköprü','Yakakent'],
+  'SİİRT':['Baykan','Eruh','Kurtalan','Merkez','Pervari','Şirvan','Tillo'],
+  'SİNOP':['Ayancık','Boyabat','Dikmen','Durağan','Erfelek','Gerze','Merkez','Saraydüzü','Türkeli'],
+  'SİVAS':['Akıncılar','Altınyayla','Divriği','Doğanşar','Gemerek','Gölova','Hafik','İmranlı','Kangal','Koyulhisar','Merkez','Suşehri','Şarkışla','Ulaş','Yıldızeli','Zara'],
+  'ŞANLIURFA':['Akçakale','Birecik','Bozova','Ceylanpınar','Eyyübiye','Halfeti','Haliliye','Harran','Hilvan','Karaköprü','Merkez','Siverek','Suruç','Viranşehir'],
+  'ŞIRNAK':['Beytüşşebap','Cizre','Güçlükonak','İdil','Merkez','Silopi','Uludere'],
+  'TEKİRDAĞ':['Çerkezköy','Çorlu','Ergene','Hayrabolu','Kapaklı','Malkara','Marmaraereğlisi','Merkez','Muratlı','Saray','Şarköy','Süleymanpaşa'],
+  'TOKAT':['Almus','Artova','Başçiftlik','Erbaa','Merkez','Niksar','Pazar','Reşadiye','Sulusaray','Turhal','Yeşilyurt','Zile'],
+  'TRABZON':['Akçaabat','Araklı','Arsin','Beşikdüzü','Çarşıbaşı','Çaykara','Dernekpazarı','Düzköy','Hayrat','Köprübaşı','Maçka','Merkez','Of','Ortahisar','Sürmene','Şalpazarı','Tonya','Vakfıkebir','Yomra'],
+  'TUNCELİ':['Çemişgezek','Hozat','Mazgirt','Merkez','Nazimiye','Ovacık','Pertek','Pülümür'],
+  'UŞAK':['Banaz','Eşme','Karahallı','Merkez','Sivaslı','Ulubey'],
+  'VAN':['Bahçesaray','Başkale','Çaldıran','Çatak','Edremit','Erciş','Gevaş','Gürpınar','İpekyolu','Merkez','Muradiye','Özalp','Saray','Tuşba'],
+  'YALOVA':['Altınova','Armutlu','Çınarcık','Çiftlikköy','Merkez','Termal'],
+  'YOZGAT':['Akdağmadeni','Aydıncık','Boğazlıyan','Çandır','Çayıralan','Çekerek','Kadışehri','Merkez','Saraykent','Sarıkaya','Sorgun','Şefaatli','Yerköy','Yozgat'],
+  'ZONGULDAK':['Alaplı','Çaycuma','Devrek','Ereğli','Gökçebey','Kilimli','Kozlu','Merkez'],
+};
+
+const TR_MAHALLELER = {
+  // Örnek mahalleler - genel template
+  '__default__': ['Cumhuriyet Mah.','Atatürk Mah.','Fatih Mah.','Merkez Mah.','Bahçelievler Mah.','Yenimahalle','Barış Mah.','Hürriyet Mah.','Çarşı Mah.','Gazi Mah.','İstiklal Mah.','Kocatepe Mah.','Mimar Sinan Mah.','Şehit Er Mah.','Yavuz Selim Mah.','Karaçay Mah.','Diğer']
+};
+
+const TR_CADDELER = ['Atatürk Cad.','İstiklal Cad.','Cumhuriyet Cad.','Bağlar Cad.','Çarşı Cad.','Yıldız Cad.','Merkez Sk.','Bahçe Sk.','Gül Sk.','Lale Sk.','Karanfil Sk.','Sümbül Sk.','Çiçek Sk.','Kavak Sk.','Sarmaşık Sk.','Koru Sk.','Diğer'];
+const TR_BINA_NOS = Array.from({length:200},(_,i)=>String(i+1));
+const TR_KATLAR = ['-2 (2. Bodrum)','-1 (1. Bodrum)','0 (Zemin)','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15+'];
+
+function _fillSelect(id, items, emptyLabel){
+  const sel = byId(id); if(!sel) return;
+  sel.innerHTML = '<option value="">'+emptyLabel+'</option>';
+  items.forEach(function(v){ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+}
+
 function peSetPolTur(btn, val){
   sv('pe-poltur', val);
   document.querySelectorAll('.pe-poltur-btn').forEach(b=>{
@@ -3842,6 +4580,10 @@ function resetPeForm(){
   window._peTaksitDates=[];
   window._peTaksitTutarlar=[];
   byId('pe-form-title').textContent='➕ Poliçe Ekle';
+  // DASK bloğunu gizle ve sıfırla
+  const db=byId('pe-dask-block');if(db)db.style.display='none';
+  const sb=byId('pe-standart-belgeler');if(sb)sb.style.display='';
+  resetDaskForm();
 }
 
 function savePolice(){
@@ -3883,6 +4625,23 @@ function savePolice(){
     aracCinsi:gv('pe-arac-cinsi')||'',
     aracMarka:gv('pe-arac-marka')||'',
     modelYili:gv('pe-model-yili')||'',
+    // KONUT / İŞYERİ / DASK alanlari
+    binaYapisi:byId('dask-bina-yapisi')?byId('dask-bina-yapisi').value:'',
+    binaYili:byId('dask-insaat-yili')?byId('dask-insaat-yili').value:'',
+    metreKare:byId('dask-m2')?byId('dask-m2').value:'',
+    bulunduguKat:byId('dask-kat')?byId('dask-kat').value:'',
+    toplamKat:byId('dask-toplam-kat')?byId('dask-toplam-kat').value:'',
+    ada:(byId('dask-ada')?byId('dask-ada').value:'').trim(),
+    pafta:(byId('dask-pafta')?byId('dask-pafta').value:'').trim(),
+    hasarDurumu:byId('dask-hasar')?byId('dask-hasar').value:'',
+    adresTam:(byId('dask-tam-adres')?byId('dask-tam-adres').value:''),
+    daskIl:byId('dask-il')?byId('dask-il').value:'',
+    daskIlce:byId('dask-ilce')?byId('dask-ilce').value:'',
+    daskMahalle:byId('dask-mahalle')?byId('dask-mahalle').value:'',
+    daskDocs:{tapu:_daskDocsTemp.tapu?{..._daskDocsTemp.tapu}:null,tc:_daskDocsTemp.tc?{..._daskDocsTemp.tc}:null,pdf:_daskDocsTemp.pdf?{..._daskDocsTemp.pdf}:null,fatura:_daskDocsTemp.fatura?{..._daskDocsTemp.fatura}:null},
+    // SEYAHAT alanları
+    seyahatUlkeCikis:gv('pe-seyahat-ulke-cikis')||'',
+    seyahatUlkeGidis:gv('pe-seyahat-ulke-gidis')||'',
     docs:{ruhsat:_peDocsTemp.ruhsat?{..._peDocsTemp.ruhsat}:null,tc:_peDocsTemp.tc?{..._peDocsTemp.tc}:null,pdf:_peDocsTemp.pdf?{..._peDocsTemp.pdf}:null}
   };
 
