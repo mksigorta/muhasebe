@@ -829,14 +829,8 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     <a onclick="showPage('police-listesi')" id="nav-police-listesi"><span class="ico">📋</span>Poliçe Listesi</a>
     <a onclick="showPage('police-takip')" id="nav-police-takip"><span class="ico">🔍</span>Poliçe Takip</a>
     <div class="nav-sec">Finans</div>
-    <a onclick="showPage('cari-ekle')" id="nav-cari-ekle"><span class="ico">💰</span>Cari</a>
-    <a onclick="showPage('cari-ekle')" id="nav-cari" style="display:none"></a>
-    <a onclick="showPage('cari-ekle')" id="nav-cari-ekle2" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">➕</span>Cari Ekle</a>
-    <a onclick="showPage('cari-liste')" id="nav-cari-liste" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">💰</span>Cari Müşteri</a>
-    <a onclick="showPage('tahsilat-ekle')" id="nav-tahsilat"><span class="ico">💳</span>Tahsilat</a>
-    <a onclick="showPage('tahsilat-ekle')" id="nav-tahsilat-ekle" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">💳</span>Tahsilat Ekle / Düzenle</a>
-    <a onclick="showPage('tahsilat-liste')" id="nav-tahsilat-liste" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">📋</span>Tahsilat Listesi</a>
-    <a onclick="showPage('tahsilat-gecik')" id="nav-tahsilat-gecik" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🔴</span>Geciken Tahsilat</a>
+    <a onclick="showPage('cari')" id="nav-cari"><span class="ico">💰</span>Cari</a>
+    <a onclick="showPage('tahsilat')" id="nav-tahsilat"><span class="ico">💳</span>Tahsilat</a>
     <a onclick="showPage('kasa')" id="nav-kasa"><span class="ico">🏦</span>MKöçe Kasa</a>
     <a onclick="showPage('kasa-pol')" id="nav-kasa-pol" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">📋</span>Acente Komisyon</a>
     <a onclick="showPage('kasa-ipt')" id="nav-kasa-ipt" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🔄</span>MKöçe İptal Kazanç</a>
@@ -844,12 +838,8 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     <a onclick="showPage('kasa-gen')" id="nav-kasa-gen" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🏆</span>Toplam Kazanç</a>
     <a onclick="showPage('acente')" id="nav-acente"><span class="ico">🏢</span>Acente</a>
     <div class="nav-sec">İşlemler</div>
-    <a onclick="showPage('iptal-ekle')" id="nav-iptal-iade"><span class="ico">🔄</span>İptal &amp; İade</a>
-    <a onclick="showPage('iptal-ekle')" id="nav-iptal-ekle" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">🔄</span>İptal &amp; İade Ekle</a>
-    <a onclick="showPage('iptal-liste')" id="nav-iptal-liste" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">📋</span>İptal &amp; İade Listesi</a>
-    <a onclick="showPage('not-ekle')" id="nav-not-defteri"><span class="ico">📝</span>Not Defteri</a>
-    <a onclick="showPage('not-ekle')" id="nav-not-ekle" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">📝</span>Not Ekle</a>
-    <a onclick="showPage('not-liste')" id="nav-not-liste" style="padding-left:22px;font-size:11.5px;"><span class="ico" style="font-size:12px;">📋</span>Not Listesi</a>
+    <a onclick="showPage('iptal-iade')" id="nav-iptal-iade"><span class="ico">🔄</span>İptal &amp; İadeler</a>
+    <a onclick="showPage('not-defteri')" id="nav-not-defteri"><span class="ico">📝</span>Not Defteri</a>
     <a onclick="showPage('whatsapp')" id="nav-whatsapp"><span class="ico">💬</span>WhatsApp</a>
     <div class="nav-sec">Analizler ✨</div>
     <a onclick="showPage('dogum-gunleri')" id="nav-dogum-gunleri"><span class="ico">🎂</span>Doğum Günleri</a>
@@ -913,9 +903,9 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   <div class="shortcuts">
     <div class="sc-btn" onclick="showPage('musteriler');setTimeout(()=>openModal('modal-musteri'),100)"><div class="sc-ico">👤</div>Müşteri Ekle</div>
     <div class="sc-btn" onclick="showPage('police-ekle')"><div class="sc-ico">📋</div>Poliçe Ekle</div>
-    <div class="sc-btn" onclick="showPage('tahsilat-ekle')"><div class="sc-ico">💳</div>Tahsilat Ekle</div>
-    <div class="sc-btn" onclick="showPage('cari-ekle')"><div class="sc-ico">💰</div>Cari Ekle</div>
-    <div class="sc-btn" onclick="showPage('iptal-ekle')"><div class="sc-ico">🔄</div>İptal &amp; İade</div>
+    <div class="sc-btn" onclick="showPage('tahsilat')"><div class="sc-ico">💳</div>Tahsilat Ekle</div>
+    <div class="sc-btn" onclick="showPage('cari')"><div class="sc-ico">💰</div>Cari Ekle</div>
+    <div class="sc-btn" onclick="showPage('iptal-iade')"><div class="sc-ico">🔄</div>İptal &amp; İade</div>
   </div>
 
   <!-- İstatistikler (tıklanabilir) -->
@@ -930,12 +920,12 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <div class="stat-value" id="st-police">0</div>
       <div class="stat-sub">↗ Listeye git</div>
     </div>
-    <div class="stat-card green" data-icon="💳" onclick="showPage('tahsilat-ekle')" title="Tahsilat">
+    <div class="stat-card green" data-icon="💳" onclick="showPage('tahsilat')" title="Tahsilat">
       <div class="stat-label">Toplam Tahsilat</div>
       <div class="stat-value" id="st-tahsilat">₺0</div>
       <div class="stat-sub">Alınan ödeme</div>
     </div>
-    <div class="stat-card blue" data-icon="💰" onclick="showPage('cari-ekle')" title="Cari">
+    <div class="stat-card blue" data-icon="💰" onclick="showPage('cari')" title="Cari">
       <div class="stat-label">Toplam Borç</div>
       <div class="stat-value" id="st-borc">₺0</div>
       <div class="stat-sub">Net bekleyen</div>
@@ -945,7 +935,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <div class="stat-value" id="st-acente">0</div>
       <div class="stat-sub">↗ Listeye git</div>
     </div>
-    <div class="stat-card orange" data-icon="🔄" onclick="showPage('iptal-ekle')" title="İptal & İadeler">
+    <div class="stat-card orange" data-icon="🔄" onclick="showPage('iptal-iade')" title="İptal & İadeler">
       <div class="stat-label">İptal Sayısı</div>
       <div class="stat-value" id="st-iptal">0</div>
       <div class="stat-sub">↗ Listeye git</div>
@@ -1833,7 +1823,8 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 </div>
 
 <!-- CARİ -->
-<div id="page-cari-ekle" class="page">
+<div id="page-cari" class="page">
+  <!-- Cari Ekle Formu -->
   <div class="card">
     <div class="card-header"><div class="card-title" id="cari-form-title">➕ Cari Ekle</div></div>
     <input type="hidden" id="cari-edit-id">
@@ -1867,9 +1858,6 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <button class="btn btn-danger" onclick="resetCariForm()">✖ İptal Et</button>
     </div>
   </div>
-</div>
-
-<div id="page-cari-liste" class="page">
   <div class="card">
     <div class="card-header">
       <div class="card-title">💰 Cari Müşteri</div>
@@ -1894,11 +1882,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 </div>
 
 <!-- TAHSİLAT -->
-</div>
-</div>
-
-
-<div id="page-tahsilat-ekle" class="page">
+<div id="page-tahsilat" class="page">
   <div class="card">
     <div class="card-header"><div class="card-title">💳 Tahsilat Ekle / Düzenle</div></div>
     <div class="form-grid">
@@ -1963,9 +1947,6 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <button class="btn btn-danger" onclick="resetTahsilatForm()">✖ İptal Et</button>
     </div>
   </div>
-</div>
-
-<div id="page-tahsilat-liste" class="page">
   <div class="card">
     <div class="card-header">
       <div class="card-title">📋 Tahsilat Listesi</div>
@@ -2015,9 +1996,6 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   </div>
 
   <!-- GECİKEN TAHSİLAT RAPORU -->
-</div>
-
-<div id="page-tahsilat-gecik" class="page">
   <div class="card" style="margin-top:14px;">
     <div class="card-header">
       <div class="card-title">🔴 Geciken Tahsilat Raporu</div>
@@ -2060,10 +2038,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   </div>
 </div>
 
-<!-- ACENTE --
-</div>
-
-
+<!-- ACENTE -->
 <div id="page-acente" class="page">
 
   <!-- ACENTE SEKMELERİ -->
@@ -2143,7 +2118,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
 </div>
 
 <!-- İPTAL & İADE -->
-<div id="page-iptal-ekle" class="page">
+<div id="page-iptal-iade" class="page">
   <div class="card">
     <div class="card-header"><div class="card-title">🔄 İptal &amp; İade Ekle</div></div>
 
@@ -2324,9 +2299,6 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   </div>
 
   <!-- LİSTE -->
-</div>
-
-<div id="page-iptal-liste" class="page">
   <div class="card">
     <div class="card-header">
       <div class="card-title">📋 İptal &amp; İade Listesi</div>
@@ -2353,11 +2325,8 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   </div>
 </div>
 
-<!-- NOT DEFTERİ --
-</div>
-
-
-<div id="page-not-ekle" class="page">
+<!-- NOT DEFTERİ -->
+<div id="page-not-defteri" class="page">
   <div class="card">
     <div class="card-header"><div class="card-title">📝 Not Ekle</div></div>
     <div class="form-grid">
@@ -2381,9 +2350,6 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
       <button class="btn btn-danger" onclick="resetNotForm()">✖ İptal Et</button>
     </div>
   </div>
-</div>
-
-<div id="page-not-liste" class="page">
   <div class="card">
     <div class="card-header"><div class="card-title">📋 Not Listesi</div></div>
     <div class="search-bar"><input type="text" placeholder="🔍 Ara..." id="srch-not" oninput="_dRenderNots()"></div>
@@ -2399,10 +2365,7 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
   </div>
 </div>
 
-<!-- WHATSAPP --
-</div>
-
-
+<!-- WHATSAPP -->
 <div id="page-whatsapp" class="page">
   <div class="card">
     <div class="card-header"><div class="card-title">💬 WhatsApp Mesaj Merkezi</div></div>
@@ -3350,7 +3313,7 @@ setInterval(updateClock,1000);updateClock();
 // ==============================
 // NAVIGATION
 // ==============================
-const pageTitles={dashboard:'Ana Sayfa','cari-ekle':'➕ Cari Ekle','cari-liste':'💰 Cari Müşteri','tahsilat-ekle':'💳 Tahsilat Ekle / Düzenle','tahsilat-liste':'📋 Tahsilat Listesi','tahsilat-gecik':'🔴 Geciken Tahsilat Raporu','iptal-ekle':'🔄 İptal & İade Ekle','iptal-liste':'📋 İptal & İade Listesi','not-ekle':'📝 Not Ekle','not-liste':'📋 Not Listesi','kasa-pol':'📋 Acente Komisyon','kasa-ipt':'🔄 MKöçe İptal Kazanç','kasa-acb':'🏢 Acente Bana Kalan','kasa-gen':'🏆 Toplam Kazanç',musteriler:'Müşteriler','police-ekle':'Poliçe Ekle','police-listesi':'Poliçe Listesi','police-takip':'Poliçe Takip',cari:'Cari',tahsilat:'Tahsilat',kasa:'MKöçe Kasa',acente:'Acente','iptal-iade':'İptal & İadeler','not-defteri':'Not Defteri',whatsapp:'WhatsApp',ayarlar:'Ayarlar','gelir-grafigi':'📊 Gelir Grafiği','dogum-gunleri':'🎂 Doğum Günleri','taksit-plani':'💰 Taksit Planı','yenileme-uyarisi':'🔔 Yenileme Uyarısı'};
+const pageTitles={dashboard:'Ana Sayfa','kasa-pol':'📋 Acente Komisyon','kasa-ipt':'🔄 MKöçe İptal Kazanç','kasa-acb':'🏢 Acente Bana Kalan','kasa-gen':'🏆 Toplam Kazanç',musteriler:'Müşteriler','police-ekle':'Poliçe Ekle','police-listesi':'Poliçe Listesi','police-takip':'Poliçe Takip',cari:'Cari',tahsilat:'Tahsilat',kasa:'MKöçe Kasa',acente:'Acente','iptal-iade':'İptal & İadeler','not-defteri':'Not Defteri',whatsapp:'WhatsApp',ayarlar:'Ayarlar','gelir-grafigi':'📊 Gelir Grafiği','dogum-gunleri':'🎂 Doğum Günleri','taksit-plani':'💰 Taksit Planı','yenileme-uyarisi':'🔔 Yenileme Uyarısı'};
 
 function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3375,8 +3338,8 @@ function showPage(name){
   const vBtn=byId('veri-yonetimi-shortcut');
   if(vBtn){vBtn.style.display=(name==='dashboard')?'inline-flex':'none';}
   closeSidebar();syncBottomNav(name);
-  if(['police-ekle','police-takip','tahsilat-ekle','iptal-ekle','whatsapp','not-ekle','cari-ekle'].includes(name))populateSelects();
-  const renders={dashboard:renderDashboard,musteriler:renderMusteriler,'police-listesi':renderPoliceListesi,'police-takip':renderTakip,'cari-ekle':renderCariEkle,'cari-liste':renderCari,'tahsilat-ekle':renderTahsilatEkle,'tahsilat-liste':renderTahsilat,'tahsilat-gecik':renderTahsilatGecik,kasa:renderKasa,'kasa-pol':()=>renderKasaAlt('pol'),'kasa-ipt':()=>renderKasaAlt('ipt'),'kasa-acb':()=>renderKasaAlt('acb'),'kasa-gen':()=>renderKasaAlt('gen'),acente:renderAcente,'iptal-ekle':renderIptalEkle,'iptal-liste':renderIptal,'not-ekle':renderNotEkle,'not-liste':renderNots,whatsapp:initWA,ayarlar:renderAyarlar,'gelir-grafigi':renderGelirGrafigi,'dogum-gunleri':renderDogumGunleri,'taksit-plani':renderTaksitPlani,'yenileme-uyarisi':renderYenilemeUyarisi};
+  if(['police-ekle','police-takip','tahsilat','iptal-iade','whatsapp','not-defteri','cari'].includes(name))populateSelects();
+  const renders={dashboard:renderDashboard,musteriler:renderMusteriler,'police-listesi':renderPoliceListesi,'police-takip':renderTakip,cari:renderCari,tahsilat:renderTahsilat,kasa:renderKasa,'kasa-pol':()=>renderKasaAlt('pol'),'kasa-ipt':()=>renderKasaAlt('ipt'),'kasa-acb':()=>renderKasaAlt('acb'),'kasa-gen':()=>renderKasaAlt('gen'),acente:renderAcente,'iptal-iade':renderIptal,'not-defteri':renderNots,whatsapp:initWA,ayarlar:renderAyarlar,'gelir-grafigi':renderGelirGrafigi,'dogum-gunleri':renderDogumGunleri,'taksit-plani':renderTaksitPlani,'yenileme-uyarisi':renderYenilemeUyarisi};
   if(renders[name])renders[name]();
 }
 function toggleSidebar(){byId('sidebar').classList.toggle('open');byId('sb-overlay').classList.toggle('show');}
@@ -5352,7 +5315,6 @@ function resetTahsilatForm(){
   loadTahsilatInfo();
 }
 function renderTahsilat(){
-  showPage('tahsilat-liste');
   const srch=gv('srch-tahsilat').toLowerCase();
   const t1=gv('th-t1');const t2=gv('th-t2');
   const fDurum=gv('srch-th-durum');
@@ -6149,7 +6111,6 @@ function saveIptal(){
       aciklama:'İptal Acente İade Alacağı – '+p.polNo+(iadA?' ('+iadA.ad+')':''),tip:'iade'});
   }
   saveDB();renderIptal();toast('Poli\xe7e iptal edildi, cari ve iade kay\u0131tlar\u0131 olu\u015fturuldu','success');resetIptalForm();updateStats();
-  showPage('iptal-liste');
 }
 function resetIptalForm(){
   ['ii-musteri','ii-police','ii-iptaltarihi','ii-baslama','ii-bitis',
@@ -6935,7 +6896,6 @@ function saveCariManuel(){
   if(eid){const i=DB.cariler.findIndex(c=>c.id===eid);if(i>-1)DB.cariler[i]=obj;else DB.cariler.push(obj);}
   else DB.cariler.push(obj);
   saveDB();renderCari();toast(eid?'Cari güncellendi':'Cari eklendi','success');resetCariForm();updateStats();
-    showPage('cari-liste');
 }
 function resetCariForm(){
   ['cari-edit-id','cari-musteri','cari-tarih','cari-polno','cari-sirket','cari-plaka','cari-tutar','cari-aciklama'].forEach(id=>sv(id,''));
@@ -7067,7 +7027,6 @@ function editNot(id){
   byId('page-not-defteri').querySelector('.card').scrollIntoView({behavior:'smooth'});
 }
 function renderNots(){
-  showPage('not-liste');
   const srch=gv('srch-not').toLowerCase();
   const tb=byId('tbody-notlar');
   let list=DB.notlar.filter(n=>{
@@ -9854,14 +9813,6 @@ function kaltExcel(type){
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   toast('Excel indirildi!','success');
 }
-
-// ── Alt Sayfa Render Stub'ları ──────────────────────────────────
-function renderCariEkle(){ resetCariForm(); }
-function renderTahsilatEkle(){ /* form zaten page-tahsilat-ekle'de */ }
-function renderTahsilatGecik(){ renderGecikRapor(); }
-function renderIptalEkle(){ /* form zaten page-iptal-ekle'de */ }
-function renderNotEkle(){ resetNotForm&&resetNotForm(); }
-
 </script>
 
 <!-- KASA TAM EKRAN MODAL -->
