@@ -1874,8 +1874,17 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
     </div>
     <div class="table-wrap">
       <table id="tbl-cari">
-        <thead><tr><th>Müşteri</th><th>Toplam Borç</th><th>Toplam Alacak</th><th>Bakiye</th><th>Durum</th><th>Detay</th><th>İşlem</th></tr></thead>
+        <thead><tr><th>Müşteri</th><th>Toplam Borç</th><th>Toplam Alacak</th><th>Kalan Bakiye</th><th>Durum</th><th>Detay</th><th>İşlem</th></tr></thead>
         <tbody id="tbody-cari"></tbody>
+        <tfoot id="tfoot-cari" style="display:none;">
+          <tr style="background:var(--bg);font-weight:800;font-size:13px;">
+            <td style="padding:10px 12px;border-top:2px solid var(--border);color:var(--muted);" id="cari-toplam-count">—</td>
+            <td style="padding:10px 12px;border-top:2px solid var(--border);color:var(--danger);" id="cari-toplam-borc">₺0</td>
+            <td style="padding:10px 12px;border-top:2px solid var(--border);color:var(--success);" id="cari-toplam-alacak">₺0</td>
+            <td style="padding:10px 12px;border-top:2px solid var(--border);" id="cari-toplam-kalan">₺0</td>
+            <td colspan="3" style="padding:10px 12px;border-top:2px solid var(--border);"></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   </div>
@@ -1893,6 +1902,25 @@ tfoot tr td,tfoot tr th{padding:9px 12px;font-size:12px;}
             style="width:100%;">
           <input type="hidden" id="th-musteri">
           <div id="th-musteri-dd" style="display:none;position:absolute;z-index:500;width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-height:200px;overflow-y:auto;margin-top:2px;"></div>
+        </div>
+      </div>
+      <!-- CARİ ÖZET KARTI -->
+      <div id="th-cari-ozet" style="display:none;grid-column:1/-1;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:2px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">📊 Müşteri Cari Durumu</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:110px;background:var(--card);border-radius:var(--radius-sm);padding:10px 14px;border:1px solid var(--border);text-align:center;">
+            <div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px;">TOPLAM BORÇ</div>
+            <div id="th-cari-borc" style="font-size:17px;font-weight:800;color:var(--danger);">₺0</div>
+          </div>
+          <div style="flex:1;min-width:110px;background:var(--card);border-radius:var(--radius-sm);padding:10px 14px;border:1px solid var(--border);text-align:center;">
+            <div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px;">TOPLAM ALACAK</div>
+            <div id="th-cari-alacak" style="font-size:17px;font-weight:800;color:var(--success);">₺0</div>
+          </div>
+          <div style="flex:1;min-width:110px;background:var(--card);border-radius:var(--radius-sm);padding:10px 14px;border:1px solid var(--border);text-align:center;">
+            <div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px;">KALAN BAKİYE</div>
+            <div id="th-cari-kalan" style="font-size:17px;font-weight:800;">₺0</div>
+            <div id="th-cari-durum" style="font-size:10px;margin-top:3px;font-weight:700;"></div>
+          </div>
         </div>
       </div>
       <div class="fg"><label>Tanzim Tarihi</label><input type="text" id="th-tanzim" readonly></div>
@@ -5174,11 +5202,29 @@ function renderCari(){
   if(cariFilter==='borclu') liste=liste.filter(x=>x.kalan>0);
   if(cariFilter==='alacakli') liste=liste.filter(x=>x.kalan<0);
 
-  if(!liste.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';return;}
+  if(!liste.length){
+    tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px;">Kayıt bulunamadı</td></tr>';
+    const tf2=byId('tfoot-cari');if(tf2)tf2.style.display='none';return;
+  }
+
+  // — Genel Toplamlar —
+  const genBorc   = liste.reduce((s,x)=>s+x.toplamBorc,0);
+  const genAlacak = liste.reduce((s,x)=>s+x.toplamAlacak,0);
+  const genKalan  = genBorc - genAlacak;
+  const kalanClrG = genKalan>0?'var(--danger)':genKalan<0?'var(--success)':'var(--muted)';
+  const tf=byId('tfoot-cari');
+  if(tf){
+    tf.style.display='table-footer-group';
+    byId('cari-toplam-count').textContent = liste.length+' Müşteri';
+    byId('cari-toplam-borc').textContent  = '₺'+fmt(genBorc);
+    byId('cari-toplam-alacak').textContent= '₺'+fmt(genAlacak);
+    const kEl=byId('cari-toplam-kalan');
+    kEl.textContent=fmt(Math.abs(genKalan))+' ₺  ('+(genKalan>0?'Borçlu':genKalan<0?'Alacaklı':'Sıfır')+')';
+    kEl.style.color=kalanClrG;
+  }
 
   tb.innerHTML=liste.map(x=>{
     const kalanColor=x.kalan>0?'var(--danger)':x.kalan<0?'var(--success)':'var(--muted)';
-    const kalanLabel=x.kalan>0?'Borçlu':x.kalan<0?'Alacaklı':'Sıfır';
     const badge=x.kalan>0
       ?'<span style="background:#fee2e2;color:#991b1b;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">Borçlu</span>'
       :x.kalan<0
@@ -5195,6 +5241,7 @@ function renderCari(){
         <button class="btn-act btn-act-success" onclick='openMusteriDetay("${x.musteriId}")'>👁️ Müşteri</button>
         <button class="btn-act btn-act-info" onclick='toggleCariDetay("${x.musteriId}")'>📋 Cari Detay</button>
         <button class="btn-act btn-act-primary" onclick='printCari("${x.musteriId}")'>🖨️ Yazdır</button>
+        <button class="btn-act" style="background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success);border:1px solid color-mix(in srgb,var(--success) 30%,transparent);" onclick='cariTahsilatEkle("${x.musteriId}")'>💳 Tahsilat Ekle</button>
       </td>
     </tr>
     <tr id="cari-detay-${x.musteriId}" style="display:none;">
@@ -5240,6 +5287,19 @@ function delCari(id){
   if(!confirm('Kayıt silinsin mi?'))return;
   DB.cariler=DB.cariler.filter(c=>c.id!==id);saveDB();renderCari();toast('Silindi','error');
 }
+// Cari sayfasından hızlı Tahsilat Ekle — müşteriyi otomatik seçerek tahsilat sayfasına yönlendirir
+function cariTahsilatEkle(mid){
+  showPage('tahsilat');
+  setTimeout(()=>{
+    const m=getMusteri(mid);
+    if(!m)return;
+    sv('th-musteri',mid);
+    const si=byId('th-musteri-search');if(si)si.value=m.ad;
+    loadTahsilatInfo();
+    const fc=byId('page-tahsilat');if(fc)fc.querySelector('.card').scrollIntoView({behavior:'smooth'});
+    toast('Müşteri seçildi: '+m.ad,'success');
+  },120);
+}
 function printCari(mid){
   const m=getMusteri(mid);
   const cs=DB.cariler.filter(c=>c.musteriId===mid);
@@ -5258,7 +5318,32 @@ function printCari(mid){
 // ==============================
 function loadTahsilatInfo(){
   const mid=gv('th-musteri');
-  if(!mid){['th-tanzim','th-baslama','th-bitis','th-polno','th-sirket','th-acente','th-acoran','th-ackomisyon','th-net','th-brut'].forEach(id=>sv(id,''));return;}
+  const ozet=byId('th-cari-ozet');
+  if(!mid){
+    ['th-tanzim','th-baslama','th-bitis','th-polno','th-sirket','th-acente','th-acoran','th-ackomisyon','th-net','th-brut'].forEach(id=>sv(id,''));
+    if(ozet)ozet.style.display='none';
+    return;
+  }
+
+  // — Cari Özet: borç / alacak / kalan —
+  const cs=DB.cariler.filter(c=>c.musteriId===mid);
+  const topB=cs.reduce((s,c)=>s+(c.borc||0),0);
+  const topA=cs.reduce((s,c)=>s+(c.alacak||0),0);
+  const kalan=topB-topA;
+  if(ozet){
+    ozet.style.display='block';
+    byId('th-cari-borc').textContent='₺'+fmt(topB);
+    byId('th-cari-alacak').textContent='₺'+fmt(topA);
+    const kEl=byId('th-cari-kalan');
+    kEl.textContent='₺'+fmt(Math.abs(kalan));
+    kEl.style.color=kalan>0?'var(--danger)':kalan<0?'var(--success)':'var(--muted)';
+    const dEl=byId('th-cari-durum');
+    if(kalan>0){dEl.textContent='⚠️ Borçlu';dEl.style.color='var(--danger)';}
+    else if(kalan<0){dEl.textContent='✅ Alacaklı';dEl.style.color='var(--success)';}
+    else{dEl.textContent='—';dEl.style.color='var(--muted)';}
+  }
+
+  // — Poliçe bilgileri —
   const ps=DB.policeler.filter(p=>p.musteriId===mid);
   if(!ps.length)return;
   const p=ps[ps.length-1];const a=getAcente(p.acenteId);
