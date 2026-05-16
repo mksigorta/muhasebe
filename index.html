@@ -1182,25 +1182,125 @@ tr.pl-selected td { background: #eff6ff !important; border-left: 3px solid var(-
 </div>
 
 <!-- ══════════════════════════════════════════════════════
-     SAYFA: AYARLAR — VERİ YEDEKLEMEsi
+     SAYFA: AYARLAR — VERİ YEDEKLEMEsi (Supabase)
 ══════════════════════════════════════════════════════ -->
 <div class="page" id="pgAyarlarVeri">
-  <div style="max-width:520px;display:grid;gap:16px">
+  <div style="max-width:660px;display:grid;gap:16px">
     <div class="back-row">
       <button class="btn btn-outline btn-sm" onclick="goPage('pgAyarlar')">← Ayarlara Dön</button>
-      <span style="font-size:13px;font-weight:700;color:var(--muted)">Veri Yedek</span>
+      <span style="font-size:13px;font-weight:700;color:var(--muted)">Veri & Yedek Yönetimi</span>
     </div>
+
+    <!-- SUPABASE BAĞLANTI KARTI -->
     <div class="form-card">
-      <div class="form-head"><h2>🗄️ Veri Yönetimi</h2></div>
-      <div class="form-body">
-        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="doYedekAl()">💾 Yedek Al (JSON)</button>
-        <div style="border:2px dashed var(--border);border-radius:var(--r);padding:16px;text-align:center;cursor:pointer" onclick="document.getElementById('backupFileInput').click()">
-          📂 Yedek Yükle (.json dosyası seçin)
-          <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="loadYedek(event)">
+      <div class="form-head" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:var(--r-lg) var(--r-lg) 0 0">
+        <h2 style="color:#fff;display:flex;align-items:center;gap:8px">
+          <span style="width:28px;height:28px;background:rgba(255,255,255,.15);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:14px">☁️</span>
+          Supabase Bağlantısı
+        </h2>
+        <div id="sbConnStatus" style="font-size:11px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px">
+          <span id="sbDot" style="width:7px;height:7px;border-radius:50%;background:#6b7280;display:inline-block"></span>
+          <span id="sbStatusTxt">Kontrol ediliyor...</span>
         </div>
-        <button class="btn btn-danger" style="width:100%;justify-content:center" onclick="confirmSilAll()">🗑️ Tüm Verileri Sil</button>
+      </div>
+      <div class="form-body">
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);padding:10px 12px;font-size:11px;color:#1e40af;display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">🔒</span>
+          <span>Supabase bağlantısı <strong>otomatik yapılandırıldı</strong>. Farklı bir proje kullanmak istiyorsanız aşağıdan değiştirebilirsiniz.</span>
+        </div>
+        <div class="fg">
+          <label>Supabase URL <span style="color:var(--success);font-size:10px">(Aktif)</span></label>
+          <input type="text" id="sbUrl" placeholder="https://xxxxx.supabase.co"
+            style="font-family:'JetBrains Mono',monospace;font-size:12px">
+        </div>
+        <div class="fg">
+          <label>Anon Key (JWT) <span style="color:var(--success);font-size:10px">(Aktif)</span></label>
+          <input type="password" id="sbKey" placeholder="eyJhbGci..."
+            style="font-family:'JetBrains Mono',monospace;font-size:12px">
+          <div class="hint">Farklı proje için: Supabase Dashboard → Settings → API → anon public key</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="sbKaydet()">💾 Değiştir & Bağlan</button>
+          <button class="btn btn-outline" onclick="sbTemizle()" title="Varsayılan bağlantıya dön">↩ Varsayılan</button>
+          <button class="btn btn-outline" onclick="sbCheckConnection()" title="Bağlantıyı yeniden test et">🔄</button>
+        </div>
       </div>
     </div>
+
+    <!-- SUPABASE İŞLEMLER -->
+    <div class="form-card" id="sbIslemlerCard" style="opacity:.5;pointer-events:none">
+      <div class="form-head"><h2>☁️ Supabase İşlemleri</h2></div>
+      <div class="form-body" style="gap:10px">
+
+        <!-- Yedek Al -->
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r);padding:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="font-size:20px">📤</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#065f46">Supabase'e Yedek Yükle</div>
+              <div style="font-size:11px;color:#059669;margin-top:1px">Yerel veriyi Supabase'e gönder (mevcut veriler silinir, yenisi yazılır)</div>
+            </div>
+          </div>
+          <div id="sbUploadProgress" style="display:none;margin-bottom:10px">
+            <div style="background:#d1fae5;border-radius:4px;height:6px;overflow:hidden">
+              <div id="sbUploadBar" style="height:100%;background:#059669;width:0%;transition:width .3s"></div>
+            </div>
+            <div id="sbUploadMsg" style="font-size:11px;color:#059669;margin-top:4px;text-align:center"></div>
+          </div>
+          <button class="btn btn-success" style="width:100%;justify-content:center" onclick="sbYedekYukle()">
+            ☁️ Tüm Veriyi Supabase'e Yükle
+          </button>
+        </div>
+
+        <!-- Yedek İndir -->
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);padding:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="font-size:20px">📥</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1e40af">Supabase'den Yedek Al</div>
+              <div style="font-size:11px;color:#3b82f6;margin-top:1px">Supabase'deki veriyi çek, yerel uygulamaya yükle</div>
+            </div>
+          </div>
+          <div id="sbDownloadProgress" style="display:none;margin-bottom:10px">
+            <div style="background:#dbeafe;border-radius:4px;height:6px;overflow:hidden">
+              <div id="sbDownloadBar" style="height:100%;background:#3b82f6;width:0%;transition:width .3s"></div>
+            </div>
+            <div id="sbDownloadMsg" style="font-size:11px;color:#3b82f6;margin-top:4px;text-align:center"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="sbYedekAl()">
+            ☁️ Supabase'den Veriyi Çek
+          </button>
+        </div>
+
+        <!-- Supabase Veriyi Sil -->
+        <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:var(--r);padding:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="font-size:20px">🗑️</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#991b1b">Supabase Verisini Sil</div>
+              <div style="font-size:11px;color:#ef4444;margin-top:1px">Supabase'deki TÜM veriler silinir — yerel veri korunur</div>
+            </div>
+          </div>
+          <button class="btn btn-danger" style="width:100%;justify-content:center" onclick="sbSilAll()">
+            🗑️ Supabase'deki Tüm Veriyi Sil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- YEREL VERİ YÖNETİMİ -->
+    <div class="form-card">
+      <div class="form-head"><h2>🗄️ Yerel Veri Yönetimi</h2></div>
+      <div class="form-body">
+        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="doYedekAl()">💾 JSON Yedek Al (İndir)</button>
+        <div style="border:2px dashed var(--border);border-radius:var(--r);padding:16px;text-align:center;cursor:pointer" onclick="document.getElementById('backupFileInput').click()">
+          📂 JSON Yedek Yükle (.json dosyası seçin)
+          <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="loadYedek(event)">
+        </div>
+        <button class="btn btn-danger" style="width:100%;justify-content:center" onclick="confirmSilAll()">🗑️ Yerel Tüm Verileri Sil</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1929,6 +2029,7 @@ function onPageLoad(id) {
   if (id === 'pgIptalListe')           { fillYilFilters(); renderIptalListe(); }
   if (id === 'pgKasa')                 renderKasa();
   if (id === 'pgAyarlar')              updateAyarlarOzet();
+  if (id === 'pgAyarlarVeri')          initSbSettings();
   if (id === 'pgAyarlarKategori')      renderKatListesi();
   if (id === 'pgAyarlarPoliceTanim')   { renderPoliceTurListesi(); renderSirketListesi(); renderAracCinsListesi(); document.getElementById('ptEditIdx').value = ''; document.getElementById('sirketEditIdx').value = ''; document.getElementById('aracCinsEditIdx').value = ''; }
   if (id === 'pgPoliceEkle' && !document.getElementById('pEditId').value) resetPForm();
@@ -4154,7 +4255,7 @@ function renderKasa() {
 }
 
 // ══════════════════════════════════════════════════════
-// YEDEK / GERİ YÜKLE
+// YEDEK / GERİ YÜKLE (JSON)
 // ══════════════════════════════════════════════════════
 function doYedekAl() {
   const data = {
@@ -4197,12 +4298,386 @@ function loadYedek(event) {
 }
 
 function confirmSilAll() {
-  showConfirm('<strong style="color:var(--danger)">⚠️ TÜM VERİLER SİLİNECEK!</strong><br>Bu işlem geri alınamaz. Devam edilsin mi?', () => {
+  showConfirm('<strong style="color:var(--danger)">⚠️ YERELDEKİ TÜM VERİLER SİLİNECEK!</strong><br>Bu işlem geri alınamaz. Devam edilsin mi?', () => {
     musteriler = []; acenteler = []; policeler = []; iptalIadeler = []; acenteTahsilatlar = [];
     cariKayitlar = []; cariHareketler = [];
     saveAll(); saveCariData();
-    toast('Tüm veriler silindi', 'warn');
+    toast('Yerel veriler silindi', 'warn');
   });
+}
+
+// ══════════════════════════════════════════════════════
+// SUPABASE ENTEGRASYONU
+// ══════════════════════════════════════════════════════
+
+// ── Supabase sabit bağlantı bilgileri ───────────────────────────────────
+const SB_DEFAULT_URL = 'https://psacizhszegnxhzjiikl.supabase.co';
+const SB_DEFAULT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzYWNpemhzemVnbnhoemppaWtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5MzM1MTAsImV4cCI6MjA5NDUwOTUxMH0.HpWGaOF5xJBuSt1Agqltx322QQ9_XZ5vjIaXQBn3d-A';
+
+function sbGetCreds() {
+  // Önce localStorage'daki özel girişe bak, yoksa sabit değerleri kullan
+  return {
+    url: (localStorage.getItem('mk_sb_url') || SB_DEFAULT_URL).replace(/\/$/, ''),
+    key:  localStorage.getItem('mk_sb_key') || SB_DEFAULT_KEY
+  };
+}
+
+function sbKaydet() {
+  const url = (document.getElementById('sbUrl').value || '').trim().replace(/\/$/, '');
+  const key = (document.getElementById('sbKey').value || '').trim();
+  if (!url || !key) { toast('URL ve Key zorunludur!', 'error'); return; }
+  if (!url.startsWith('https://')) { toast('URL https:// ile başlamalı!', 'error'); return; }
+  localStorage.setItem('mk_sb_url', url);
+  localStorage.setItem('mk_sb_key', key);
+  sbCheckConnection();
+}
+
+function sbTemizle() {
+  // Özel girişi sil; sabit değerlere dön
+  localStorage.removeItem('mk_sb_url');
+  localStorage.removeItem('mk_sb_key');
+  document.getElementById('sbUrl').value = SB_DEFAULT_URL;
+  document.getElementById('sbKey').value = SB_DEFAULT_KEY;
+  sbSetStatus(false, 'Varsayılana döndü');
+  toast('Özel bilgiler temizlendi — varsayılan bağlantı aktif', 'info');
+  sbCheckConnection();
+}
+
+function sbSetStatus(ok, msg) {
+  const dot = document.getElementById('sbDot');
+  const txt = document.getElementById('sbStatusTxt');
+  dot.style.background = ok ? '#10b981' : '#ef4444';
+  txt.textContent = msg;
+}
+
+async function sbCheckConnection() {
+  const { url, key } = sbGetCreds();
+  if (!url || !key) { sbSetStatus(false, 'Bilgi girilmedi'); return; }
+  sbSetStatus(false, 'Kontrol ediliyor...');
+  try {
+    const r = await fetch(`${url}/rest/v1/musteriler?limit=1`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (r.ok || r.status === 200 || r.status === 206) {
+      sbSetStatus(true, 'Bağlı ✓');
+      document.getElementById('sbIslemlerCard').style.opacity = '1';
+      document.getElementById('sbIslemlerCard').style.pointerEvents = 'auto';
+    } else {
+      const err = await r.json().catch(() => ({}));
+      sbSetStatus(false, `Hata: ${r.status}`);
+      toast(`Bağlantı hatası: ${err.message || r.status}`, 'error');
+    }
+  } catch(e) {
+    sbSetStatus(false, 'Bağlanamadı');
+    toast('Bağlantı kurulamadı: ' + e.message, 'error');
+  }
+}
+
+// Supabase REST helper
+async function sbReq(method, table, body = null, params = '') {
+  const { url, key } = sbGetCreds();
+  const headers = {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    'Content-Type': 'application/json',
+    Prefer: method === 'POST' ? 'return=minimal' : ''
+  };
+  const r = await fetch(`${url}/rest/v1/${table}${params}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.message || `HTTP ${r.status}`);
+  }
+  if (method === 'DELETE' || method === 'POST') return true;
+  return r.json();
+}
+
+// ── Supabase'e Yedek Yükle ──────────────────────────────────────────────
+async function sbYedekYukle() {
+  const { url, key } = sbGetCreds();
+  if (!url || !key) { toast('Önce Supabase bilgilerini kaydedin!', 'error'); return; }
+
+  const toplam = musteriler.length + acenteler.length + policeler.length +
+    iptalIadeler.length + acenteTahsilatlar.length + cariKayitlar.length + cariHareketler.length;
+  if (!toplam) { toast('Yüklenecek yerel veri yok!', 'warn'); return; }
+
+  showConfirm(
+    `<strong>☁️ Supabase'e ${toplam} kayıt yüklenecek.</strong><br>
+     <span style="color:var(--danger);font-size:12px">⚠️ Supabase'deki mevcut veriler önce silinecek!</span>`,
+    async () => {
+      const prog = document.getElementById('sbUploadProgress');
+      const bar  = document.getElementById('sbUploadBar');
+      const msg  = document.getElementById('sbUploadMsg');
+      prog.style.display = 'block';
+
+      const steps = [
+        { label: 'Müşteriler',      table: 'musteriler',         data: musteriler,         map: sbMapMusteri },
+        { label: 'Acenteler',       table: 'acenteler',          data: acenteler,           map: sbMapAcente },
+        { label: 'Poliçeler',       table: 'policeler',          data: policeler,           map: sbMapPolice },
+        { label: 'İptal & İadeler', table: 'iptal_iadeler',      data: iptalIadeler,        map: sbMapIptal },
+        { label: 'Acente Tahsilat', table: 'acente_tahsilatlar', data: acenteTahsilatlar,   map: sbMapAT },
+        { label: 'Cari Kayıtlar',   table: 'cari_kayitlar',      data: cariKayitlar,        map: sbMapCari },
+        { label: 'Cari Hareketler', table: 'cari_hareketler',    data: cariHareketler,      map: sbMapCariHar },
+      ];
+
+      try {
+        // Önce sil (referential integrity sırası: child önce)
+        const silSirasi = ['cari_hareketler','acente_tahsilatlar','iptal_iadeler','policeler','cari_kayitlar','acenteler','musteriler'];
+        msg.textContent = 'Eski veriler temizleniyor...';
+        for (const t of silSirasi) {
+          await fetch(`${url}/rest/v1/${t}?id=gte.0`, {
+            method: 'DELETE',
+            headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+          });
+        }
+
+        for (let i = 0; i < steps.length; i++) {
+          const s = steps[i];
+          const pct = Math.round(((i) / steps.length) * 100);
+          bar.style.width = pct + '%';
+          msg.textContent = `${s.label} yükleniyor... (${i+1}/${steps.length})`;
+
+          if (s.data.length) {
+            const mapped = s.data.map(s.map);
+            // Supabase POST 1000'den büyük için chunk'la
+            for (let c = 0; c < mapped.length; c += 500) {
+              const chunk = mapped.slice(c, c + 500);
+              const r = await fetch(`${url}/rest/v1/${s.table}`, {
+                method: 'POST',
+                headers: {
+                  apikey: key, Authorization: `Bearer ${key}`,
+                  'Content-Type': 'application/json', Prefer: 'return=minimal'
+                },
+                body: JSON.stringify(chunk)
+              });
+              if (!r.ok) {
+                const e = await r.json().catch(() => ({}));
+                throw new Error(`${s.table}: ${e.message || r.status}`);
+              }
+            }
+          }
+        }
+
+        bar.style.width = '100%';
+        msg.textContent = 'Tamamlandı ✅';
+        setTimeout(() => { prog.style.display = 'none'; bar.style.width = '0%'; }, 2500);
+        toast(`Supabase'e yüklendi ✅ — ${toplam} kayıt`, 'success');
+      } catch(e) {
+        prog.style.display = 'none';
+        toast('Yükleme hatası: ' + e.message, 'error');
+      }
+    }
+  );
+}
+
+// ── Supabase'den Yedek Al ───────────────────────────────────────────────
+async function sbYedekAl() {
+  const { url, key } = sbGetCreds();
+  if (!url || !key) { toast('Önce Supabase bilgilerini kaydedin!', 'error'); return; }
+
+  showConfirm(
+    `<strong>☁️ Supabase'den veri çekilecek.</strong><br>
+     <span style="color:var(--warning);font-size:12px">⚠️ Yerel veriler Supabase verisiyle değiştirilecek!</span>`,
+    async () => {
+      const prog = document.getElementById('sbDownloadProgress');
+      const bar  = document.getElementById('sbDownloadBar');
+      const msg  = document.getElementById('sbDownloadMsg');
+      prog.style.display = 'block';
+
+      const steps = [
+        { label: 'Müşteriler',      table: 'musteriler',         key: 'musteriler',         map: sbRevMapMusteri },
+        { label: 'Acenteler',       table: 'acenteler',          key: 'acenteler',           map: sbRevMapAcente },
+        { label: 'Poliçeler',       table: 'policeler',          key: 'policeler',           map: sbRevMapPolice },
+        { label: 'İptal & İadeler', table: 'iptal_iadeler',      key: 'iptalIadeler',        map: sbRevMapIptal },
+        { label: 'Acente Tahsilat', table: 'acente_tahsilatlar', key: 'acenteTahsilatlar',   map: sbRevMapAT },
+        { label: 'Cari Kayıtlar',   table: 'cari_kayitlar',      key: 'cariKayitlar',        map: sbRevMapCari },
+        { label: 'Cari Hareketler', table: 'cari_hareketler',    key: 'cariHareketler',      map: sbRevMapCariHar },
+      ];
+
+      try {
+        const result = {};
+        for (let i = 0; i < steps.length; i++) {
+          const s = steps[i];
+          const pct = Math.round(((i) / steps.length) * 100);
+          bar.style.width = pct + '%';
+          msg.textContent = `${s.label} çekiliyor... (${i+1}/${steps.length})`;
+
+          // Supabase max 1000 row döner; pagination
+          let rows = [], offset = 0;
+          while (true) {
+            const r = await fetch(`${url}/rest/v1/${s.table}?limit=1000&offset=${offset}`, {
+              headers: { apikey: key, Authorization: `Bearer ${key}`, 'Range-Unit': 'items', Range: `${offset}-${offset+999}` }
+            });
+            if (!r.ok) throw new Error(`${s.table}: HTTP ${r.status}`);
+            const chunk = await r.json();
+            rows = rows.concat(chunk);
+            if (chunk.length < 1000) break;
+            offset += 1000;
+          }
+          result[s.key] = rows.map(s.map);
+        }
+
+        // Yerel değişkenlere ata
+        musteriler        = result.musteriler;
+        acenteler         = result.acenteler;
+        policeler         = result.policeler;
+        iptalIadeler      = result.iptalIadeler;
+        acenteTahsilatlar = result.acenteTahsilatlar;
+        cariKayitlar      = result.cariKayitlar;
+        cariHareketler    = result.cariHareketler;
+
+        saveAll(); saveCariData();
+        fillYilFilters(); fillAcenteFilter();
+        bar.style.width = '100%';
+        msg.textContent = 'Tamamlandı ✅';
+        setTimeout(() => { prog.style.display = 'none'; bar.style.width = '0%'; }, 2500);
+        const top = musteriler.length + acenteler.length + policeler.length + cariHareketler.length;
+        toast(`Supabase'den çekildi ✅ — ${top} kayıt`, 'success');
+      } catch(e) {
+        prog.style.display = 'none';
+        toast('İndirme hatası: ' + e.message, 'error');
+      }
+    }
+  );
+}
+
+// ── Supabase'deki tüm veriyi sil ───────────────────────────────────────
+async function sbSilAll() {
+  const { url, key } = sbGetCreds();
+  if (!url || !key) { toast('Önce Supabase bilgilerini kaydedin!', 'error'); return; }
+
+  showConfirm(
+    `<strong style="color:var(--danger)">⚠️ SUPABASE'DEKİ TÜM VERİLER SİLİNECEK!</strong><br>
+     <span style="font-size:12px">Yerel verileriniz korunur. Bu işlem geri alınamaz.</span>`,
+    async () => {
+      try {
+        const { url, key } = sbGetCreds();
+        const silSirasi = ['cari_hareketler','acente_tahsilatlar','iptal_iadeler','policeler','cari_kayitlar','acenteler','musteriler'];
+        for (const t of silSirasi) {
+          const r = await fetch(`${url}/rest/v1/${t}?id=gte.0`, {
+            method: 'DELETE',
+            headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+          });
+          if (!r.ok) {
+            const e = await r.json().catch(() => ({}));
+            throw new Error(`${t}: ${e.message || r.status}`);
+          }
+        }
+        toast('Supabase verileri silindi ✅', 'warn');
+      } catch(e) {
+        toast('Silme hatası: ' + e.message, 'error');
+      }
+    }
+  );
+}
+
+// ── Supabase'e gönderilecek mapping (JS → DB kolon adları) ──────────────
+function sbMapMusteri(m) {
+  return { id: m.id, ad: m.ad, tc: m.tc||null, vno: m.vno||null, vdaire: m.vdaire||null,
+    tel: m.tel||null, gsm: m.gsm||null, dogum: m.dogum||null, sehir: m.sehir||null, notlar: m.not||m.notlar||null };
+}
+function sbMapAcente(a) {
+  return { id: a.id, ad: a.ad, tel: a.tel||null, tarih: a.tarih||null, aciklama: a.aciklama||null };
+}
+function sbMapPolice(p) {
+  return {
+    id: p.id, musteri_id: p.musteriId||null, acente_id: p.acenteId||null,
+    tur: p.tur||null, no: p.no||null, sirket: p.sirket||null,
+    tanzim: p.tanzim||null, baslama: p.baslama||null, bitis: p.bitis||null,
+    sure: p.sure ? parseInt(p.sure) : null, plaka: p.plaka||null,
+    arac_cins: p.aracCins||null, marka: p.marka||null, model: p.model||null,
+    net: +(p.net||0), brut: +(p.brut||0),
+    kom_oran: +(p.komOran||0), kom_tutar: +(p.komTutar||0),
+    odeme_durum: p.odemeDurum||'Ödenmedi', odeme_tip: p.odemeTip||'Borçlu',
+    kart: p.kart||null, aciklama: p.aciklama||null,
+    ruhsat_data: p.ruhsatData||null, pdf_data: p.pdfData||null,
+    iptal: p.iptal||false
+  };
+}
+function sbMapIptal(x) {
+  return {
+    id: x.id, musteri_id: x.musteriId||null, acente_id: x.acenteId||null, police_id: x.policeId||null,
+    sirket: x.sirket||null, police_no: x.policeNo||null, plaka: x.plaka||null, tur: x.tur||null,
+    brut: +(x.brut||0), net: +(x.net||0), iptal_tarih: x.iptalTarih||null,
+    sebep: x.sebep||null, noter_ad: x.noterAd||null, noter_no: x.noterNo||null,
+    kul_gun: +(x.kulGun||0), kal_gun: +(x.kalGun||0),
+    mk_iade: +(x.mkIade||0), gercek_iade: +(x.gercekIade||0), ac_iade: +(x.acIade||0),
+    kazanc: +(x.kazanc||0), ac_bana_kalan: +(x.acBanaKalan||0), mk_top_kazanc: +(x.mkTopKazanc||0),
+    aciklama: x.aciklama||null, satis_senedi: x.satisSenedi||null
+  };
+}
+function sbMapAT(t) {
+  return { id: t.id, acente_id: t.acenteId||null, tarih: t.tarih||null,
+    tutar: +(t.tutar||0), aciklama: t.aciklama||null };
+}
+function sbMapCari(c) {
+  return { id: c.id, kod: c.kod||null, ad: c.ad, tel: c.tel||null,
+    kategori: c.kategori||null, musteri_id: c.musteriId||null, acente_id: c.acenteId||null,
+    adres: c.adres||null, notlar: c.notlar||c.not||null };
+}
+function sbMapCariHar(h) {
+  return {
+    id: h.id, cari_id: h.cariId||null, police_id: h.policeId||null, iptal_id: h.iptalId||null,
+    kaynak: h.kaynak||'manuel', tur: h.tur,
+    label: h.label||null, tarih: h.tarih||null, saat: h.saat||'00:00',
+    tutar: +(h.tutar||0), aciklama: h.aciklama||null, dosya: h.dosya||null
+  };
+}
+
+// ── Supabase'den gelen mapping (DB → JS alan adları) ────────────────────
+function sbRevMapMusteri(r) {
+  return { id: r.id, ad: r.ad, tc: r.tc, vno: r.vno, vdaire: r.vdaire,
+    tel: r.tel, gsm: r.gsm, dogum: r.dogum, sehir: r.sehir, not: r.notlar };
+}
+function sbRevMapAcente(r) {
+  return { id: r.id, ad: r.ad, tel: r.tel, tarih: r.tarih, aciklama: r.aciklama };
+}
+function sbRevMapPolice(r) {
+  return {
+    id: r.id, musteriId: r.musteri_id, acenteId: r.acente_id,
+    tur: r.tur, no: r.no, sirket: r.sirket,
+    tanzim: r.tanzim, baslama: r.baslama, bitis: r.bitis, sure: r.sure,
+    plaka: r.plaka, aracCins: r.arac_cins, marka: r.marka, model: r.model,
+    net: r.net, brut: r.brut, komOran: r.kom_oran, komTutar: r.kom_tutar,
+    odemeDurum: r.odeme_durum, odemeTip: r.odeme_tip,
+    kart: r.kart, aciklama: r.aciklama,
+    ruhsatData: r.ruhsat_data, pdfData: r.pdf_data, iptal: r.iptal
+  };
+}
+function sbRevMapIptal(r) {
+  return {
+    id: r.id, musteriId: r.musteri_id, acenteId: r.acente_id, policeId: r.police_id,
+    sirket: r.sirket, policeNo: r.police_no, plaka: r.plaka, tur: r.tur,
+    brut: r.brut, net: r.net, iptalTarih: r.iptal_tarih,
+    sebep: r.sebep, noterAd: r.noter_ad, noterNo: r.noter_no,
+    kulGun: r.kul_gun, kalGun: r.kal_gun,
+    mkIade: r.mk_iade, gercekIade: r.gercek_iade, acIade: r.ac_iade,
+    kazanc: r.kazanc, acBanaKalan: r.ac_bana_kalan, mkTopKazanc: r.mk_top_kazanc,
+    aciklama: r.aciklama, satisSenedi: r.satis_senedi
+  };
+}
+function sbRevMapAT(r) {
+  return { id: r.id, acenteId: r.acente_id, tarih: r.tarih, tutar: r.tutar, aciklama: r.aciklama };
+}
+function sbRevMapCari(r) {
+  return { id: r.id, kod: r.kod, ad: r.ad, tel: r.tel, kategori: r.kategori,
+    musteriId: r.musteri_id, acenteId: r.acente_id, adres: r.adres, notlar: r.notlar };
+}
+function sbRevMapCariHar(r) {
+  return {
+    id: r.id, cariId: r.cari_id, policeId: r.police_id, iptalId: r.iptal_id,
+    kaynak: r.kaynak, tur: r.tur, label: r.label,
+    tarih: r.tarih, saat: r.saat, tutar: r.tutar,
+    aciklama: r.aciklama, dosya: r.dosya
+  };
+}
+
+// Ayarlar sayfası yüklenince Supabase bilgilerini doldur + otomatik bağlan
+function initSbSettings() {
+  const { url, key } = sbGetCreds();
+  document.getElementById('sbUrl').value = url;
+  document.getElementById('sbKey').value = key;
+  // Her açılışta bağlantıyı kontrol et
+  sbCheckConnection();
 }
 
 // ══════════════════════════════════════════════════════
@@ -4820,6 +5295,8 @@ function initApp() {
   fillAracCinsSelect();
   goPage('pgMusteriListe');
   setTimeout(() => triggerAutosave(), 800);
+  // Supabase bağlantısını arka planda kontrol et
+  setTimeout(() => sbCheckConnection(), 1500);
 }
 
 // ESC kapat
